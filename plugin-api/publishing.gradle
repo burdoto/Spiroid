@@ -28,6 +28,16 @@ publishing {
                 password sonatypePassword
             }
         }
+
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/$userbase/${rootProject.name}")
+            
+            credentials {
+                username githubUsername
+                password githubPassword
+            }
+        }
     }
 
     publications {
