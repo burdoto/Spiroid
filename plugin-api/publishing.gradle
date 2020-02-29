@@ -6,8 +6,6 @@ final HttpClient client = HttpClient.newBuilder().build()
 
 apply plugin: 'maven-publish'
 
-task teamcityPublish(dependsOn: 'publish')
-
 publishing {
     repositories {
         maven {
