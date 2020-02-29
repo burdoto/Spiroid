@@ -143,4 +143,5 @@ test/**
 !test/server.properties
 
 # Local Libraries
-libs/**
+## we want to know what api was used exactly
+#libs/**
