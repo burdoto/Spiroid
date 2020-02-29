@@ -1,0 +1,82 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.1'
+    }
+}
+
+apply plugin: 'java'
+
+group 'org.comroid'
+version '0.0.0'
+
+ext {
+    pluginDescription = 'comroid Core Plugin'
+}
+
+subprojects {
+    apply plugin: 'java'
+
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+
+    processResources {
+        from(sourceSets.main.resources) {
+            expand project.properties
+        }
+    }
+
+    compileJava.options.encoding = "UTF-8"
+
+    repositories {
+        jcenter()
+        
+        maven {
+            url "https://maven.jetbrains.space/comroid/repo"
+            credentials.username "Anonymous.User"
+            credentials.password "anonymous"
+        }
+    }
+
+    dependencies {
+        compileOnly fileTree("$rootDir/libs")
+
+        compileOnly 'org.jetbrains:annotations:19.0.0'
+    }
+}
+
+project(':plugin') {
+    apply plugin: 'com.github.johnrengelman.shadow'
+
+    task buildPlugin(type: Copy, dependsOn: 'shadowJar') {
+        from tasks.findByName('shadowJar').outputs.files.singleFile
+        into file("$rootDir/out/")
+        rename { String filename -> return "${rootProject.name}.jar" }
+    }
+    
+    task testPlugin(type: Copy, dependsOn: ['deleteTestPlugin', 'shadowJar']) {
+        from tasks.findByName('shadowJar').outputs.files.singleFile
+        into file("$rootDir/test/plugins/")
+        rename { String filename -> return "${rootProject.name}.jar" }
+    }
+
+    task deleteTestPlugin(type: Delete) {
+        delete "$rootDir/test/plugins/${rootProject.name}.jar"
+    }
+
+    dependencies {
+        implementation project(':plugin-api')
+        
+        implementation 'org.comroid:upd8r:0.1.2-SNAPSHOT'
+    }
+}
+
+project(':plugin-api') {
+    apply plugin: 'java-library'
+
+    dependencies {
+        implementation 'org.comroid:upd8r:0.1.2-SNAPSHOT'
+    }
+}
