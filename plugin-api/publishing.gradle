@@ -1,5 +1,8 @@
+import java.net.http.HttpClient
 import java.net.http.HttpRequest
 import java.net.http.HttpResponse.BodyHandlers
+
+final HttpClient client = HttpClient.newBuilder().build()
 
 apply plugin: 'maven-publish'
 
@@ -82,6 +85,8 @@ publishing {
 }
 
 def artifactId = publishing.publications.mavenJava.artifactId
+
+// block sonatype release if exists
 tasks.findByName('publishMavenJavaPublicationToSonatypeRepository').onlyIf {
     if (snapshot) return true
 
