@@ -2,7 +2,7 @@ import static java.lang.System.getenv
 
 ext {
     artifactName = 'spiroid-api'
-    userbase = 'burdoto'
+    userbase = 'comroid-git'
 
     projectDescription = 'The API for the Spiroid Spigot utilities Plugin'
     exportedProjects = rootProject.subprojects.collect { it.name }
