@@ -1,0 +1,23 @@
+apply plugin: 'com.github.johnrengelman.shadow'
+
+task buildPlugin(type: Copy, dependsOn: 'shadowJar') {
+    from tasks.findByName('shadowJar').outputs.files.singleFile
+    into file("$rootDir/out/")
+    rename { String filename -> return "${rootProject.name}.jar" }
+}
+
+task testPlugin(type: Copy, dependsOn: ['deleteTestPlugin', 'shadowJar']) {
+    from tasks.findByName('shadowJar').outputs.files.singleFile
+    into file("$rootDir/test/plugins/")
+    rename { String filename -> return "${rootProject.name}.jar" }
+}
+
+task deleteTestPlugin(type: Delete) {
+    delete "$rootDir/test/plugins/${rootProject.name}.jar"
+}
+
+dependencies {
+    implementation project(':plugin-api')
+
+    implementation 'org.comroid:upd8r:0.1.2-SNAPSHOT'
+}

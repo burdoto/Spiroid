@@ -1,0 +1,102 @@
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse.BodyHandlers
+
+apply plugin: 'maven-publish'
+
+task teamcityPublish(dependsOn: 'publish')
+
+publishing {
+    repositories {
+        maven {
+            name = 'Space'
+            url = 'https://maven.jetbrains.space/comroid/repo'
+
+            credentials {
+                username spaceUsername
+                password spacePassword
+            }
+        }
+
+        maven {
+            name = 'Sonatype'
+            url = snapshot
+                    ? 'https://oss.sonatype.org/content/repositories/snapshots'
+                    : 'https://oss.sonatype.org/service/local/staging/deploy/maven2'
+
+            credentials {
+                username sonatypeUsername
+                password sonatypePassword
+            }
+        }
+    }
+
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'spiroid-api'
+            from components.java
+
+            artifact sourcesJar
+            artifact javadocJar
+
+            pom {
+                name = rootProject.name
+                description = project.projectDescription
+                inceptionYear = '2019'
+                url = "https://github.com/$userbase/$rootProject.name".toString()
+
+                licenses {
+                    license {
+                        name = 'The Apache License, Version 2.0'
+                        url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'kaleidox'
+                        name = 'Tobias Burdow'
+                        email = 'contact@kaleidox.de'
+                    }
+                }
+
+                scm {
+                    connection = "scm:git:git://github.com/$userbase/${rootProject.name}.git".toString()
+                    developerConnection = "scm:git:ssh://github.com/$userbase/${rootProject.name}.git".toString()
+                    url = "https://github.com/$userbase/$rootProject.name".toString()
+                }
+            }
+
+            System.out.println("Registered artifact publication: '${group}:${artifactId}:${project.version}' -> $project.projectDescription")
+        }
+    }
+}
+
+def artifactId = publishing.publications.mavenJava.artifactId
+tasks.findByName('publishMavenJavaPublicationToSonatypeRepository').onlyIf {
+    if (snapshot) return true
+
+    def uri = new URI(String.format("https://oss.sonatype.org/content/repositories/releases/%s/%s/%s/%s",
+            rootProject.group.toString().replace(".", "/"), // domain
+            artifactId,
+            project.version,
+            String.format("%s-%s.pom", artifactId, project.version)
+    ))
+    def response = client.send(HttpRequest.newBuilder(uri).GET().build(), BodyHandlers.ofString())
+    def code = response.statusCode()
+
+    System.out.printf("Checked for existing Sonatype Artifact: %s RETURNED %d\n", uri, code)
+
+    return code != 200
+}
+
+task generateGithubPom(type: GenerateMavenPom) {
+    destination = file("$projectDir/pom.xml")
+    pom = publishing.publications.mavenJava.pom
+}
+
+apply plugin: 'signing'
+
+signing {
+    useGpgCmd()
+    sign publishing.publications.mavenJava
+}

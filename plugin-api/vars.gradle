@@ -1,0 +1,21 @@
+import static java.lang.System.getenv
+
+ext {
+    artifactName = 'spiroid-api'
+    userbase = 'burdoto'
+
+    projectDescription = 'The API for the Spiroid Spigot utilities Plugin'
+    exportedProjects = rootProject.subprojects.collect { it.name }
+
+    snapshot = project.version.endsWith('SNAPSHOT')
+
+    spaceUsername = getenv('SPACE_USERNAME')
+    spacePassword = getenv('SPACE_PASSWORD')
+
+    sonatypeUsername = getenv('SONATYPE_USERNAME')
+    sonatypePassword = getenv('SONATYPE_PASSWORD')
+}
+
+ext.'signing.gnupg.passphrase' = getenv('GPG_PASSPHRASE')
+ext.'signing.gnupg.keyName' = getenv('GPG_KEYNAME')
+ext.'signing.gnupg.useLegacyGpg' = true

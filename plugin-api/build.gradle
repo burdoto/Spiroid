@@ -1,0 +1,38 @@
+apply plugin: 'java-library'
+
+dependencies {
+    implementation 'org.comroid:upd8r:0.1.2-SNAPSHOT'
+}
+
+apply from: "vars.gradle"
+
+tasks.withType(Javadoc) {
+    source = sourceSets.main.java
+    options.encoding = 'UTF-8'
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+
+    try {
+        archiveClassifier.set 'sources'
+    } catch (MissingPropertyException ignored) {
+        classifier = "sources"
+    }
+}
+
+task javadocJar(type: Jar) {
+    dependsOn 'javadoc'
+
+    from javadoc.destinationDir
+
+    try {
+        archiveClassifier.set 'javadoc'
+    } catch (MissingPropertyException ignored) {
+        classifier = "javadoc"
+    }
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+apply from: 'publishing.gradle'
