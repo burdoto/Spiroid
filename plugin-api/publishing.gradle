@@ -8,6 +8,8 @@ apply plugin: 'maven-publish'
 
 publishing {
     repositories {
+        mavenLocal()
+
         maven {
             name = 'Space'
             url = 'https://maven.jetbrains.space/comroid/repo'
@@ -32,7 +34,7 @@ publishing {
 
         maven {
             name = "GitHubPackages"
-            url = uri("https://maven.pkg.github.com/${userbase.toLowerCase()}/${rootProject.name.toLowerCase()}")
+            url = githubRegistryUrl
             
             credentials {
                 username githubUsername
