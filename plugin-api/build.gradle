@@ -1,6 +1,6 @@
-apply plugin: 'java-library'
+version = rootProject.version
 
-version = '0.2.0-SNAPSHOT'
+apply plugin: 'java-library'
 
 dependencies {
     implementation 'org.comroid:upd8r:0.1.2-SNAPSHOT'
