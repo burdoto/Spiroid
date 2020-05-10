@@ -11,7 +11,7 @@ apply from: "vars.gradle"
 
 task buildPluginApi(type: Copy, dependsOn: 'jar') {
     from tasks.findByName('jar').outputs.files.singleFile
-    into file("$rootDir/out/")
+    into file("$rootDir/out/api")
     rename { String filename -> return "spiroid-api@${project.version}.jar" }
 }
 

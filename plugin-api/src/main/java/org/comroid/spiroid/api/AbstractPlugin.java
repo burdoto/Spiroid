@@ -1,5 +1,18 @@
 package org.comroid.spiroid.api;
 
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.PluginCommand;
+import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.comroid.common.Version;
+import org.comroid.common.upd8r.model.UpdateChannel;
+import org.comroid.spiroid.api.model.Cyclable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -11,42 +24,28 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
-import org.comroid.common.Version;
-import org.comroid.common.upd8r.model.UpdateChannel;
-import org.comroid.spiroid.api.model.Cyclable;
-
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
-import org.bukkit.configuration.InvalidConfigurationException;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-
 public abstract class AbstractPlugin extends JavaPlugin implements Version.Container {
     public static AbstractPlugin instance;
 
     public final YamlConfiguration pluginYML;
     public final CycleHandler cycleHandler;
     public final Version version;
-    
+
     protected @Nullable UpdateChannel updateChannel;
 
     protected Map<String, FileConfiguration> configs = new ConcurrentHashMap<>();
 
     {
         pluginYML = YamlConfiguration.loadConfiguration(new BufferedReader(new InputStreamReader(Objects.requireNonNull(this
-            .getClassLoader()
-            .getResourceAsStream("plugin.yml"), "Could not find plugin.yml!"))));
+                .getClassLoader()
+                .getResourceAsStream("plugin.yml"), "Could not find plugin.yml!"))));
         cycleHandler = new CycleHandler(this);
         cycleHandler.accept(new Cyclable.Primitive(this::saveConfig));
-        
+
         version = new Version(Optional.ofNullable(pluginYML.getString("version"))
                 .orElseThrow(() -> new AssertionError("Version not found in plugin.yml!")));
     }
-    
+
     public Optional<UpdateChannel> getUpdateChannel() {
         return Optional.ofNullable(updateChannel);
     }
