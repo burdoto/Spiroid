@@ -36,6 +36,7 @@ subprojects {
             credentials.username "Anonymous.User"
             credentials.password "anonymous"
         }
+        maven { url "https://hub.spigotmc.org/nexus/content/repositories/snapshots/" }
         jcenter()
     }
 

@@ -141,7 +141,3 @@ test/**
 !test/plugins/**.jar
 !test/eula.txt
 !test/server.properties
-
-# Local Libraries
-## we want to know what api was used exactly
-!BuildTools.jar
