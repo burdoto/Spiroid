@@ -144,4 +144,4 @@ test/**
 
 # Local Libraries
 ## we want to know what api was used exactly
-!libs/**
+!BuildTools.jar
