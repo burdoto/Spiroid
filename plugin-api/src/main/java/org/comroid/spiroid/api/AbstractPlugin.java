@@ -72,7 +72,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
             try { // if there is no configuration; create it:
                 File file = new File(dir.getAbsolutePath() + (dir.getAbsolutePath().endsWith("/") ? "" : '/') + name + ".yml"); // get the file
-                if (file.createNewFile() /* create the file if necessary */)
+                if (!file.exists() && file.createNewFile() /* create the file if necessary */)
                     throw new IOException("Could not create configuration file: " + file.getAbsolutePath());
 
                 return YamlConfiguration.loadConfiguration(file);
@@ -159,5 +159,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     @Override
     public void onEnable() {
         super.onEnable();
+
+        getServer().getScheduler().scheduleSyncDelayedTask(this, cycleHandler);
     }
 }

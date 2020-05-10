@@ -12,42 +12,35 @@ apply plugin: 'java'
 group 'org.comroid'
 version '0' //unused
 
-project(':plugin').version = '0.1.0-SNAPSHOT'
-project(':plugin-api').version = '0.1.0-SNAPSHOT'
-
 ext {
     pluginDescription = 'comroid Core Plugin'
 }
 
 subprojects {
     apply plugin: 'java'
-    
+
+    ext {
+        mcVersion = '1.14.4'
+        spigotRC = 'R0.1'
+    }
+
     group rootProject.group
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
 
-    processResources {
-        from(sourceSets.main.resources) {
-            expand project.properties
-        }
-    }
-
-    compileJava.options.encoding = "UTF-8"
-
     repositories {
-        jcenter()
-        
+        mavenLocal()
         maven {
             url "https://maven.jetbrains.space/comroid/repo"
             credentials.username "Anonymous.User"
             credentials.password "anonymous"
         }
+        jcenter()
     }
 
     dependencies {
-        compileOnly fileTree("$rootDir/libs")
-
+        compileOnly "org.spigotmc:spigot-api:$mcVersion-$spigotRC-SNAPSHOT"
         compileOnly 'org.jetbrains:annotations:19.0.0'
     }
 }

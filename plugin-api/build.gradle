@@ -1,5 +1,7 @@
 apply plugin: 'java-library'
 
+version = '0.2.0-SNAPSHOT'
+
 dependencies {
     implementation 'org.comroid:upd8r:0.1.2-SNAPSHOT'
 }

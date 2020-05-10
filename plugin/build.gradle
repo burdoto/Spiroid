@@ -1,33 +1,8 @@
+version = '0.1.0-SNAPSHOT'
+
 apply plugin: 'com.github.johnrengelman.shadow'
-
-String mcVersion() {
-    def spigotApis = new File("$rootDir/libs").list(new FilenameFilter() {
-        @Override
-        boolean accept(File dir, String name) {
-            return name.startsWith("spigot-api-") && name.endsWith(".jar")
-        }
-    })
-    
-    if (spigotApis.length == 1) {
-        return spigotApis[0].substring("spigot-api-".length(), spigotApis[0].substring("spigot-api-".length()).indexOf('-') + "spigot-api-".length())
-    } else throw new NullPointerException("Spigot API jar not found")
-}
-
-task buildPlugin(type: Copy, dependsOn: 'shadowJar') {
-    from tasks.findByName('shadowJar').outputs.files.singleFile
-    into file("$rootDir/out/")
-    rename { String filename -> return "${rootProject.name}-mc${mcVersion()}@${project.version}.jar" }
-}
-
-task testPlugin(type: Copy, dependsOn: ['deleteTestPlugin', 'shadowJar']) {
-    from tasks.findByName('shadowJar').outputs.files.singleFile
-    into file("$rootDir/test/plugins/")
-    rename { String filename -> return "${rootProject.name}.jar" }
-}
-
-task deleteTestPlugin(type: Delete) {
-    delete "$rootDir/test/plugins/${rootProject.name}.jar"
-}
+apply from: 'vars.gradle'
+apply from: 'jar.gradle'
 
 dependencies {
     implementation project(':plugin-api')

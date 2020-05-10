@@ -1,9 +1,9 @@
 main: org.comroid.spiroid.Spiroid
 name: ${rootProject.name}
-version: ${version}
-author: comroid
-description: ${pluginDescription}
-api-version: "1.14"
+version: $pluginVersion
+author: $userbase
+description: $pluginDescription
+api-version: $mcVersionMj
 
 commands:
   e2uClaim:
