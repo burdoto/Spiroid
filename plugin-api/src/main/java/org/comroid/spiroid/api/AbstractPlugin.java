@@ -32,7 +32,6 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     public final Version version;
 
     protected @Nullable UpdateChannel updateChannel;
-
     protected Map<String, FileConfiguration> configs = new ConcurrentHashMap<>();
 
     {
@@ -66,9 +65,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
             if (dir.mkdir())
                 getLogger().fine("Created configuration directory: " + dir.getAbsolutePath());
 
-        return configs.compute(name, (k, v) -> {
-            if (v != null) return v; // if configuration is already set, return it
-
+        return configs.computeIfAbsent(name, key -> {
             try { // if there is no configuration; create it:
                 File file = new File(dir.getAbsolutePath() + (dir.getAbsolutePath().endsWith("/") ? "" : '/') + name + ".yml"); // get the file
                 if (!file.exists() && file.createNewFile() /* create the file if necessary */)
