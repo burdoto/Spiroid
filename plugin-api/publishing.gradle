@@ -156,10 +156,6 @@ task generateGithubPom(type: GenerateMavenPom) {
 if (canSign) {
     apply plugin: 'signing'
 
-    ext.'signing.gnupg.passphrase' = getenv('GPG_PASSPHRASE')
-    ext.'signing.gnupg.keyName' = getenv('GPG_KEYNAME')
-    ext.'signing.gnupg.useLegacyGpg' = true
-
     signing {
         useGpgCmd()
         sign publishing.publications.mavenJava
