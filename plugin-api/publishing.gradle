@@ -12,7 +12,7 @@ ext {
     canSign = getenv().containsKey('GPG_KEYNAME') && getenv().containsKey('GPG_PASSPHRASE')
     canPublishToSpace = getenv().containsKey('SPACE_PASSWORD') && getenv().containsKey('SPACE_USERNAME')
     canPublishToSonatype = canSign && getenv().containsKey('SONATYPE_PASSWORD') && getenv().containsKey('SONATYPE_USERNAME')
-    canPublishToGitHub = canSign && getenv().containsKey('GITHUB_PASSWORD') && getenv().containsKey('GITHUB_USERNAME')
+    canPublishToGitHub = !snapshot && canSign && getenv().containsKey('GITHUB_PASSWORD') && getenv().containsKey('GITHUB_USERNAME')
 }
 
 if (canSign) {
