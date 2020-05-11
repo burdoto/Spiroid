@@ -18,7 +18,6 @@ ext {
 if (canSign) {
     ext.'signing.gnupg.keyName' = getenv('GPG_KEYNAME')
     ext.'signing.gnupg.passphrase' = getenv('GPG_PASSPHRASE')
-    ext.'signing.gnupg.useLegacyGpg' = true
 }
 
 if (canPublishToSpace) {
