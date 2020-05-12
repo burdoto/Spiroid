@@ -9,7 +9,8 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.comroid.common.Version;
 import org.comroid.common.upd8r.model.UpdateChannel;
-import org.comroid.spiroid.api.model.Cyclable;
+import org.comroid.spiroid.api.cycle.Cyclable;
+import org.comroid.spiroid.api.cycle.CycleHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -25,25 +26,23 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 
 public abstract class AbstractPlugin extends JavaPlugin implements Version.Container {
+    public static final Class<? extends AbstractPlugin> spiroid;
     public static AbstractPlugin instance;
 
-    public final YamlConfiguration pluginYML;
-    public final CycleHandler cycleHandler;
-    public final Version version;
-
-    protected @Nullable UpdateChannel updateChannel;
-    protected Map<String, FileConfiguration> configs = new ConcurrentHashMap<>();
-
-    {
-        pluginYML = YamlConfiguration.loadConfiguration(new BufferedReader(new InputStreamReader(Objects.requireNonNull(this
-                .getClassLoader()
-                .getResourceAsStream("plugin.yml"), "Could not find plugin.yml!"))));
-        cycleHandler = new CycleHandler(this);
-        cycleHandler.accept(new Cyclable.Primitive(this::saveConfig));
-
-        version = new Version(Optional.ofNullable(pluginYML.getString("version"))
-                .orElseThrow(() -> new AssertionError("Version not found in plugin.yml!")));
+    static {
+        try {
+            //noinspection unchecked
+            spiroid = (Class<? extends AbstractPlugin>) Class.forName("org.comroid.spiroid.Spiroid");
+        } catch (ClassNotFoundException e) {
+            throw new IllegalStateException("Class unavailable: org.comroid.spiroid.Spiroid");
+        }
     }
+
+    public final YamlConfiguration pluginYML;
+    public final Version version;
+    protected final CycleHandler cycleHandler;
+    protected final Map<String, FileConfiguration> configs = new ConcurrentHashMap<>();
+    protected @Nullable UpdateChannel updateChannel;
 
     public Optional<UpdateChannel> getUpdateChannel() {
         return Optional.ofNullable(updateChannel);
@@ -59,6 +58,17 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
         return Objects.requireNonNull(getConfig("config"), "Could not get default configuration file");
     }
 
+    protected AbstractPlugin() {
+        pluginYML = YamlConfiguration.loadConfiguration(new BufferedReader(new InputStreamReader(Objects.requireNonNull(this
+                .getClassLoader()
+                .getResourceAsStream("plugin.yml"), "Could not find plugin.yml!"))));
+        cycleHandler = new CycleHandler(this);
+        cycleHandler.accept(new Cyclable.Primitive(this::saveConfig));
+
+        version = new Version(Optional.ofNullable(pluginYML.getString("version"))
+                .orElseThrow(() -> new AssertionError("Version not found in plugin.yml!")));
+    }
+
     public final @Nullable FileConfiguration getConfig(String name) {
         final File dir = new File(configPathBase());
         if (!dir.exists())
@@ -67,7 +77,9 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
         return configs.computeIfAbsent(name, key -> {
             try { // if there is no configuration; create it:
-                File file = new File(dir.getAbsolutePath() + (dir.getAbsolutePath().endsWith("/") ? "" : '/') + name + ".yml"); // get the file
+                File file = new File(String.format("%s%s%s.yml",
+                        dir.getAbsolutePath(),
+                        dir.getAbsolutePath().endsWith(File.separator) ? "" : File.separatorChar, name)); // get the file
                 if (!file.exists() && file.createNewFile() /* create the file if necessary */)
                     throw new IOException("Could not create configuration file: " + file.getAbsolutePath());
 

@@ -1,4 +1,4 @@
-package org.comroid.spiroid.api;
+package org.comroid.spiroid.api.cycle;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -6,7 +6,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
-import org.comroid.spiroid.api.model.Cyclable;
+import org.comroid.spiroid.api.AbstractPlugin;
 
 import org.bukkit.Bukkit;
 
@@ -21,7 +21,7 @@ public final class CycleHandler implements Consumer<Cyclable>, Runnable {
 
     private long interval = time2tick(5, TimeUnit.MINUTES);
 
-    CycleHandler(AbstractPlugin plugin) {
+    public CycleHandler(AbstractPlugin plugin) {
         this.plugin = plugin;
         this.engine = new Engine();
         this.cyclables = new ConcurrentHashMap<>(1);
@@ -39,6 +39,7 @@ public final class CycleHandler implements Consumer<Cyclable>, Runnable {
     @Override
     public void run() {
         engine.reschedule();
+        plugin.getLogger().log(Level.INFO, logPrefix + " Started CycleHandler " + toString());
     }
 
     protected class Engine implements Runnable {

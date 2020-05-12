@@ -1,4 +1,4 @@
-package org.comroid.spiroid.api.model;
+package org.comroid.spiroid.api.cycle;
 
 import java.io.IOException;
 

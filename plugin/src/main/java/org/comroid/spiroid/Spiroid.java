@@ -1,5 +1,6 @@
 package org.comroid.spiroid;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.MalformedURLException;
@@ -43,11 +44,11 @@ public final class Spiroid extends AbstractPlugin {
     public Spiroid() {
         this.updateChannel = new NGinXUpdateChannel(
                 this,
-                "https://api.cdn.kaleidox.de/plugin/Spiroid",
+                "https://cdn.comroid.org/plugin/spiroid/plugin",
                 filename -> new Version(filename.substring(filename.lastIndexOf('@'), filename.lastIndexOf('.'))),
                 filename -> {
                     try {
-                        return new URL("https://cdn.kaleidox.de/plugin/Spiroid/" + filename);
+                        return new URL("https://cdn.comroid.org/plugin/spiroid/plugin" + File.separatorChar + filename);
                     } catch (MalformedURLException e) {
                         throw new AssertionError(e);
                     }
@@ -62,45 +63,8 @@ public final class Spiroid extends AbstractPlugin {
             throw new IllegalArgumentException("Spiroid can only update Plugins that extend " + AbstractPlugin.class.getName());
 
         ((AbstractPlugin) plugin).getUpdateChannel().ifPresent(updateChannel -> {
-
+            throw new UnsupportedOperationException(); //todo
         });
-    }
-
-    @Override
-    public boolean onCommand(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String label,
-            @NotNull String[] args
-    ) {
-        Optional<Player> playerOptional = BukkitUtil.getPlayer(sender);
-
-        if (playerOptional.map(Entity::getWorld)
-                .map(World::getName)
-                .map("configVersion"::equals)
-                .orElse(false)) return false;
-        if (playerOptional.map(WorldUtil::isExcludedWorld)
-                .orElse(false)) {
-            Chat.message(sender, MessageType.WARN, "You are in an excluded world!");
-            return false;
-        }
-
-
-        return super.onCommand(sender, command, label, args);
-    }
-
-    @Override
-    public List<String> onTabComplete(
-            @NotNull CommandSender sender,
-            @NotNull Command command,
-            @NotNull String alias,
-            @NotNull String[] args
-    ) {
-        ArrayList<String> yields = new ArrayList<>();
-
-
-        yields.removeIf(str -> str.indexOf(args[args.length - 1]) != 0);
-        return yields;
     }
 
     @Override
