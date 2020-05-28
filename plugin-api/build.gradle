@@ -1,12 +1,6 @@
 version = rootProject.version
 
 apply plugin: 'java-library'
-
-dependencies {
-    implementation 'org.comroid:upd8r:0.1.2-SNAPSHOT'
-    implementation 'org.comroid:uniform:0.12.1-SNAPSHOT'
-}
-
 apply from: "vars.gradle"
 
 task buildPluginApi(type: Copy, dependsOn: 'jar') {
@@ -43,5 +37,10 @@ task javadocJar(type: Jar) {
 }
 
 compileJava.options.encoding = 'UTF-8'
+
+dependencies {
+    implementation 'org.comroid:upd8r:0.1.2-SNAPSHOT'
+    implementation 'org.comroid:uniform:0.12.1-SNAPSHOT'
+}
 
 apply from: 'publishing.gradle'

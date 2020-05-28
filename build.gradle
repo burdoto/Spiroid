@@ -25,6 +25,7 @@ subprojects {
     }
 
     group rootProject.group
+    version rootProject.version
 
     sourceCompatibility = 1.8
     targetCompatibility = 1.8
@@ -32,11 +33,11 @@ subprojects {
     repositories {
         mavenLocal()
         maven {
-            url 'https://maven.jetbrains.space/comroid/repo'
-            credentials.username 'Anonymous.User'
-            credentials.password 'anonymous'
+            url = 'https://maven.jetbrains.space/comroid/repo'
+            credentials.username = 'Anonymous.User'
+            credentials.password = 'anonymous'
         }
-        maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+        maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
         jcenter()
         maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
     }
