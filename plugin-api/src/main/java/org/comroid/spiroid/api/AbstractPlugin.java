@@ -9,6 +9,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.comroid.common.Version;
 import org.comroid.common.upd8r.model.UpdateChannel;
+import org.comroid.spiroid.api.command.CommandHandler;
 import org.comroid.spiroid.api.cycle.Cyclable;
 import org.comroid.spiroid.api.cycle.CycleHandler;
 import org.jetbrains.annotations.NotNull;
@@ -42,6 +43,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     public final Version version;
     protected final CycleHandler cycleHandler;
     protected final Map<String, FileConfiguration> configs = new ConcurrentHashMap<>();
+    protected final CommandHandler commandHandler;
     protected @Nullable UpdateChannel updateChannel;
 
     public Optional<UpdateChannel> getUpdateChannel() {
@@ -67,6 +69,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
         version = new Version(Optional.ofNullable(pluginYML.getString("version"))
                 .orElseThrow(() -> new AssertionError("Version not found in plugin.yml!")));
+        commandHandler = new CommandHandler();
     }
 
     public final @Nullable FileConfiguration getConfig(String name) {
@@ -140,18 +143,18 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        return super.onCommand(sender, command, label, args); // TODO: 15.01.2020 Command Framework
+    public final boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        return commandHandler.executeCommand(sender, command, label, args);
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        return super.onTabComplete(sender, command, alias, args); // TODO: 15.01.2020 Command Framework
+    public final @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
+        return commandHandler.tabComplete(sender, command, alias, args);
     }
 
     @Override
-    public @Nullable PluginCommand getCommand(@NotNull String name) {
-        return super.getCommand(name); // TODO: 15.01.2020 Command Framework
+    public final @Nullable PluginCommand getCommand(@NotNull String name) {
+        return commandHandler.getCommand(name, () -> super.getCommand(name));
     }
 
     @Override
