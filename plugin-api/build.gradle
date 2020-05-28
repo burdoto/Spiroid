@@ -39,8 +39,9 @@ task javadocJar(type: Jar) {
 compileJava.options.encoding = 'UTF-8'
 
 dependencies {
+    api 'org.comroid:uniform:0.12.1-SNAPSHOT'
+
     implementation 'org.comroid:upd8r:0.1.2-SNAPSHOT'
-    implementation 'org.comroid:uniform:0.12.1-SNAPSHOT'
 }
 
 apply from: 'publishing.gradle'
