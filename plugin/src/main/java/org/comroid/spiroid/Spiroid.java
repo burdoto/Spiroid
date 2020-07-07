@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
+import org.bukkit.configuration.MemoryConfiguration;
 import org.comroid.common.Version;
 import org.comroid.common.upd8r.nginx.NGinXUpdateChannel;
 import org.comroid.spiroid.api.AbstractPlugin;

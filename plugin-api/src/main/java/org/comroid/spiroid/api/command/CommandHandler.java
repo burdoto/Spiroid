@@ -9,6 +9,7 @@ import java.util.function.Supplier;
 
 public final class CommandHandler {
     public int registerCommands(CommandContainer... commandContainers) {
+        return 0;
     }
 
     public boolean executeCommand(CommandSender sender, Command command, String label, String[] args) {

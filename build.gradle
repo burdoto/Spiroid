@@ -2,7 +2,7 @@ plugins {
     id "com.github.johnrengelman.shadow" version "5.2.0"
 }
 
-tasks.findByName('wrapper').configure {
+tasks.findByName('wrapper')?.configure {
     gradleVersion = '6.2'
     distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }
