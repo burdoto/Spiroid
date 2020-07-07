@@ -4,10 +4,12 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.InvalidConfigurationException;
+import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.comroid.common.Version;
+import org.comroid.common.io.FileHandle;
 import org.comroid.common.upd8r.model.UpdateChannel;
 import org.comroid.spiroid.api.cycle.Cyclable;
 import org.comroid.spiroid.api.cycle.CycleHandler;
@@ -40,6 +42,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
     public final YamlConfiguration pluginYML;
     public final Version version;
+    public final FileHandle configDir;
     protected final CycleHandler cycleHandler;
     protected final Map<String, FileConfiguration> configs = new ConcurrentHashMap<>();
     protected @Nullable UpdateChannel updateChannel;
@@ -67,28 +70,35 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
         version = new Version(Optional.ofNullable(pluginYML.getString("version"))
                 .orElseThrow(() -> new AssertionError("Version not found in plugin.yml!")));
+        commandHandler = new CommandHandler();
+        configDir = new FileHandle(configPathBase());
+
+        configDir.validateDir();
     }
 
-    public final @Nullable FileConfiguration getConfig(String name) {
-        final File dir = new File(configPathBase());
-        if (!dir.exists())
-            if (dir.mkdir())
-                getLogger().fine("Created configuration directory: " + dir.getAbsolutePath());
+    public final @NotNull FileConfiguration getConfig(String name) {
+        final FileHandle dir = new FileHandle(configPathBase());
+        if (!dir.exists() && dir.mkdir())
+            getLogger().fine("Created configuration directory: " + dir);
+        else if (!dir.exists())
+            throw new UnsupportedOperationException("Could not create configuration directory: " + dir);
 
         return configs.computeIfAbsent(name, key -> {
             try { // if there is no configuration; create it:
-                File file = new File(String.format("%s%s%s.yml",
-                        dir.getAbsolutePath(),
-                        dir.getAbsolutePath().endsWith(File.separator) ? "" : File.separatorChar, name)); // get the file
-                if (!file.exists() && file.createNewFile() /* create the file if necessary */)
-                    throw new IOException("Could not create configuration file: " + file.getAbsolutePath());
+                final FileHandle file = configDir.createSubFile(key);
 
-                return YamlConfiguration.loadConfiguration(file);
+                if (!file.exists() && !file.createNewFile() /* create the file if necessary */)
+                    throw new IOException("Could not create configuration file: " + file.getAbsolutePath());
+                else {
+                    final YamlConfiguration loaded = YamlConfiguration.loadConfiguration(file);
+                    getConfigDefaults(key).ifPresent(loaded::setDefaults);
+                    return loaded;
+                }
             } catch (IOException e) {
-                getLogger().log(Level.SEVERE, "Could not get config \"" + name + "\"", e);
+                getLogger().log(Level.SEVERE, "Could not get config \"" + key + "\"", e);
             }
 
-            return null;
+            throw new AssertionError("Could not compute configuration " + key);
         });
     }
 
@@ -103,23 +113,28 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
         configs.forEach((name, config) -> {
             try {
-                File file = new File(configPathBase() + name + ".yml");
-                config.load(name);
+                final FileHandle file = configDir.createSubFile(name + ".yml");
+                System.out.println("file1 = " + file);
+                config.load(file);
             } catch (InvalidConfigurationException | IOException e) {
                 getLogger().log(Level.SEVERE, "Error reloading config \"" + name + "\"", e);
             }
         });
     }
 
+    /**
+     * Saves all cached configurations.
+     */
     @Override
     public final void saveConfig() {
         getLogger().fine("Saving configuration files...");
 
         configs.forEach((name, config) -> {
             try {
-                File file = new File(configPathBase() + name + ".yml");
-                config.save(file);
-            } catch (IOException e) {
+                final FileHandle file = configDir.createSubFile(name + ".yml");
+                System.out.println("file2 = " + file);
+                config.load(file);
+            } catch (InvalidConfigurationException | IOException e) {
                 getLogger().log(Level.SEVERE, "Error saving config \"" + name + "\"", e);
             }
         });
@@ -129,9 +144,10 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     public final void saveDefaultConfig() throws UnsupportedOperationException {
         configs.computeIfPresent("config", (name, config) -> {
             try {
-                File file = new File(configPathBase() + name + ".yml");
-                config.save(file);
-            } catch (IOException e) {
+                final FileHandle file = configDir.createSubFile(name + ".yml");
+                System.out.println("file3 = " + file);
+                config.load(file);
+            } catch (InvalidConfigurationException | IOException e) {
                 getLogger().log(Level.SEVERE, "Error saving default configuration", e);
             }
 
@@ -169,5 +185,9 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
         super.onEnable();
 
         getServer().getScheduler().scheduleSyncDelayedTask(this, cycleHandler);
+    }
+
+    protected Optional<MemoryConfiguration> getConfigDefaults(String name) {
+        return Optional.empty();
     }
 }
