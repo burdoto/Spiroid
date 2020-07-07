@@ -1,11 +1,11 @@
-version = rootProject.version
+version = parent.version
 
 apply plugin: 'java-library'
 apply from: "vars.gradle"
 
 task buildPluginApi(type: Copy, dependsOn: 'jar') {
     from tasks.findByName('jar').outputs.files.singleFile
-    into file("$rootDir/out/api")
+    into file("$parent.projectDir/out/api")
     rename { String filename -> return "spiroid-api@${project.version}.jar" }
 }
 

@@ -5,7 +5,7 @@ apply from: 'vars.gradle'
 apply from: 'jar.gradle'
 
 dependencies {
-    implementation project(':plugin-api')
+    implementation project(':Spiroid:plugin-api')
 
     implementation 'org.comroid:upd8r:0.1.2-SNAPSHOT'
 }
