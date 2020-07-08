@@ -40,7 +40,6 @@ compileJava.options.encoding = 'UTF-8'
 
 dependencies {
     api project(':common-util:interfaces')
-    api project(':common-util:upd8r')
     api project(':common-util:uniform')
 
     runtimeOnly('com.google.flogger:flogger-log4j-backend:0.5.1') {

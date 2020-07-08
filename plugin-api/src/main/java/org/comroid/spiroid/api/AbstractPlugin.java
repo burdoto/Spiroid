@@ -10,7 +10,6 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.comroid.common.Version;
 import org.comroid.common.io.FileHandle;
-import org.comroid.common.upd8r.model.UpdateChannel;
 import org.comroid.mutatio.span.Span;
 import org.comroid.spiroid.api.command.SpiroidCommand;
 import org.comroid.spiroid.api.cycle.Cyclable;
@@ -49,11 +48,6 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     protected final Map<String, Configuration> configs = new ConcurrentHashMap<>();
     protected final Map<String, SpiroidCommand> commands = TrieMap.ofString();
     private final Span<String> configNames;
-    protected @Nullable UpdateChannel updateChannel;
-
-    public Optional<UpdateChannel> getUpdateChannel() {
-        return Optional.ofNullable(updateChannel);
-    }
 
     @Override
     public Version getVersion() {

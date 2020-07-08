@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 
 import org.bukkit.configuration.MemoryConfiguration;
 import org.comroid.common.Version;
-import org.comroid.common.upd8r.nginx.NGinXUpdateChannel;
 import org.comroid.spiroid.api.AbstractPlugin;
 import org.comroid.spiroid.api.exception.PluginEnableException;
 import org.comroid.spiroid.api.util.BukkitUtil;
@@ -43,29 +42,6 @@ public final class Spiroid extends AbstractPlugin {
     public static Const CONST;
 
     public Spiroid() {
-        this.updateChannel = new NGinXUpdateChannel(
-                this,
-                "https://cdn.comroid.org/plugin/spiroid/plugin",
-                filename -> new Version(filename.substring(filename.lastIndexOf('@'), filename.lastIndexOf('.'))),
-                filename -> {
-                    try {
-                        return new URL("https://cdn.comroid.org/plugin/spiroid/plugin" + File.separatorChar + filename);
-                    } catch (MalformedURLException e) {
-                        throw new AssertionError(e);
-                    }
-                }
-        );
-    }
-
-    public void updatePlugin(Plugin plugin) {
-        if (plugin == this)
-            throw new IllegalArgumentException("Spiroid cannot update itself");
-        if (!(plugin instanceof AbstractPlugin))
-            throw new IllegalArgumentException("Spiroid can only update Plugins that extend " + AbstractPlugin.class.getName());
-
-        ((AbstractPlugin) plugin).getUpdateChannel().ifPresent(updateChannel -> {
-            throw new UnsupportedOperationException(); //todo
-        });
     }
 
     @Override
