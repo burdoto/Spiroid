@@ -45,7 +45,7 @@ public interface SpiroidCommand extends Named {
                 Stream.of(tabComplete(startsWith)),
                 Stream.of(getSubcommands()).map(SpiroidCommand::getName)
         )
-                .filter(str -> str.startsWith(startsWith))
+                //.filter(str -> str.startsWith(startsWith))
                 .collect(Collectors.toList());
     }
 
@@ -63,8 +63,7 @@ public interface SpiroidCommand extends Named {
 
                     return result != null;
                 })
-                .orElseThrow(() -> new NoSuchElementException("No Subcommand could be found for input: "
-                        + String.join(" ", args)));
+                .orElse(false);
     }
 
     @Internal
@@ -79,9 +78,8 @@ public interface SpiroidCommand extends Named {
 
         return Optional.of(next)
                 .flatMap(sub -> {
-                    final Map<String, SpiroidCommand> cmds = sub.getSubcommandsOrdered();
-                    if (cmds.size() == 0)
-                        return Optional.empty();
+                    if (sub.getSubcommands().length == 0)
+                        return Optional.of(sub);
                     return sub.findSubcommand(args, index + 1);
                 });
     }

@@ -180,7 +180,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
                     }
                 });
     }
-
+//    /minecord connect 712424223854821467
     @Override
     public boolean onCommand(
             @NotNull CommandSender sender,
@@ -192,7 +192,6 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
         if (cmd == null)
             return false;
-        String response;
 
         return cmd.wrapExecution(sender, args, 0);
     }
@@ -212,24 +211,6 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
         return cmd.findSubcommand(args, 0)
                 .map(sub -> sub.getTabCompletions(args.length > 0 ? args[args.length - 1] : ""))
                 .orElse(null);
-    }
-
-    protected Object unwrapExecution(
-            SpiroidCommand cmd,
-            CommandSender sender,
-            boolean simulate,
-            String[] args,
-            int index
-    ) {
-        final Object result = cmd.execute(sender, simulate, args.length > index ? args[index] : null);
-
-        if (result instanceof SpiroidCommand)
-            return unwrapExecution((SpiroidCommand) result, sender, simulate, args, index + 1);
-        if (result instanceof Formattable)
-            return String.format("%s", result);
-        if (result instanceof MessageSupplier)
-            return ((MessageSupplier) result).get();
-        return String.valueOf(result);
     }
 
     @Override
