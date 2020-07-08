@@ -19,7 +19,6 @@ import org.comroid.spiroid.api.cycle.CycleHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -73,7 +72,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
         try (
                 InputStream is = this.getClassLoader().getResourceAsStream("plugin.yml");
-                InputStreamReader isr = new InputStreamReader(Objects.requireNonNull(is, "plugin.yml not found"));
+                InputStreamReader isr = new InputStreamReader(Objects.requireNonNull(is, "plugin.yml not found"))
         ) {
             this.pluginYML = YamlConfiguration.loadConfiguration(isr);
         } catch (IOException ioe) {
@@ -156,35 +155,18 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
     @Override
     public final void saveDefaultConfig() throws UnsupportedOperationException {
-        configs.forEach((name, config) -> {
-            final Configuration cfg = configs.compute(key,
-                    (name, config) -> getConfigDefaults(name)
-                            .map(defaults -> {
-                                if (config == null) {
-                                    final YamlConfiguration yml = YamlConfiguration
-                                            .loadConfiguration(configDir.createSubFile(key + ".yml"));
-                                    yml.setDefaults(defaults);
-                                    return yml;
-                                }
-
-                                config.setDefaults(defaults);
-                                return config;
-                            }).orElseGet(() -> {
-                                if (config == null) return YamlConfiguration
-                                        .loadConfiguration(configDir.createSubFile(key + ".yml"));
-                                return config;
-                            }));
-
-            try {
-                final FileHandle file = configDir.createSubFile(key + ".yml");
-
-                if (cfg instanceof FileConfiguration)
-                    ((FileConfiguration) cfg).save(file);
-                else throw new AssertionError("Config is not FileConfiguration");
-            } catch (IOException e) {
-                getLogger().log(Level.SEVERE, "Error saving default configuration", e);
-            }
-        });
+        configNames.pipe()
+                .bi(this::getConfig)
+                .mapFirst(name -> configDir.createSubFile(name + ".yml"))
+                .forEach((file, config) -> {
+                    try {
+                        getLogger().log(Level.INFO, "Configuration:\n" + config.saveToString());
+                        config.save(file);
+                    } catch (IOException e) {
+                        getLogger().log(Level.SEVERE, "Could not save configuration: " + file.getName(), e);
+                        getLogger().log(Level.CONFIG, "Faulty configuration:\n" + config.saveToString());
+                    }
+                });
     }
 
     @Override
