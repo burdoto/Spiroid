@@ -1,8 +1,8 @@
 package org.comroid.spiroid.api;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.MemoryConfiguration;
@@ -10,23 +10,24 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.comroid.common.Version;
+import org.comroid.common.info.MessageSupplier;
 import org.comroid.common.io.FileHandle;
 import org.comroid.common.upd8r.model.UpdateChannel;
 import org.comroid.mutatio.span.Span;
-import org.comroid.spiroid.api.command.CommandHandler;
+import org.comroid.spiroid.api.command.SpiroidCommand;
 import org.comroid.spiroid.api.cycle.Cyclable;
 import org.comroid.spiroid.api.cycle.CycleHandler;
+import org.comroid.trie.TrieMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.lang.reflect.Method;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 import java.util.logging.Level;
 
 public abstract class AbstractPlugin extends JavaPlugin implements Version.Container {
@@ -47,7 +48,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     public final FileHandle configDir;
     protected final CycleHandler cycleHandler;
     protected final Map<String, Configuration> configs = new ConcurrentHashMap<>();
-    protected final CommandHandler commandHandler;
+    protected final Map<String, SpiroidCommand> commands = TrieMap.ofString();
     private final Span<String> configNames;
     protected @Nullable UpdateChannel updateChannel;
 
@@ -66,6 +67,8 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     }
 
     protected AbstractPlugin(String... configNames) {
+        instance = this;
+
         this.configNames = Span.<String>make()
                 .initialValues(configNames)
                 .span();
@@ -86,7 +89,6 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
         this.version = new Version(Optional.ofNullable(pluginYML.getString("version"))
                 .orElseThrow(() -> new AssertionError("Version not found in plugin.yml!")));
-        this.commandHandler = new CommandHandler();
         this.configDir = new FileHandle(getDataFolder());
         configDir.validateDir();
     }
@@ -106,6 +108,10 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
                 else {
                     final YamlConfiguration loaded = YamlConfiguration.loadConfiguration(file);
                     getConfigDefaults(key).ifPresent(loaded::setDefaults);
+
+                    if (!configNames.contains(name))
+                        configNames.add(name);
+
                     return loaded;
                 }
             } catch (IOException e) {
@@ -160,7 +166,6 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
                 .mapFirst(name -> configDir.createSubFile(name + ".yml"))
                 .forEach((file, config) -> {
                     try {
-                        getLogger().log(Level.INFO, "Configuration:\n" + config.saveToString());
                         config.save(file);
                     } catch (IOException e) {
                         getLogger().log(Level.SEVERE, "Could not save configuration: " + file.getName(), e);
@@ -171,17 +176,79 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        return super.onCommand(sender, command, label, args); // TODO: 15.01.2020 Command Framework
+        final SpiroidCommand cmd = commands.get(label);
+
+        if (cmd == null)
+            return false;
+        String response;
+
+        try {
+            final Object result = unwrapExecution(cmd, sender, false, args, 0);
+
+            if (result instanceof MessageSupplier)
+                response = ((MessageSupplier) result).get();
+            else response = String.format("%s", result);
+        } catch (Throwable any) {
+            response = String.format(
+                    "%sCommand failed: %s: %s",
+                    ChatColor.RED,
+                    any.getClass().getName(),
+                    any.getMessage()
+            );
+        }
+
+        sender.sendMessage(response);
+        return true;
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
-        return super.onTabComplete(sender, command, alias, args); // TODO: 15.01.2020 Command Framework
+    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        final SpiroidCommand cmd = commands.get(label);
+        final List<String> yields = new ArrayList<>(0);
+
+        if (cmd == null)
+            return yields;
+
+        String response;
+
+        try {
+            final Object result = unwrapExecution(cmd, sender, false, args, 0);
+
+            Arrays.stream(result.getClass().getMethods())
+                    .sequential()
+                    .filter(mtd -> !mtd.getDeclaringClass().equals(Object.class))
+                    .map(Method::getName)
+                    .filter(((Predicate<String>) "toString"::equals).negate())
+                    .forEach(yields::add);
+        } catch (Throwable any) {
+            yields.add(String.format(
+                    "%sCommand failed: %s: %s",
+                    ChatColor.RED,
+                    any.getClass().getName(),
+                    any.getMessage()
+            ));
+            return yields;
+        }
+
+        return yields;
     }
 
-    @Override
-    public @Nullable PluginCommand getCommand(@NotNull String name) {
-        return super.getCommand(name); // TODO: 15.01.2020 Command Framework
+    protected Object unwrapExecution(
+            SpiroidCommand cmd,
+            CommandSender sender,
+            boolean simulate,
+            String[] args,
+            int index
+    ) {
+        final Object result = cmd.execute(sender, simulate, args.length > index ? args[index] : null);
+
+        if (result instanceof SpiroidCommand)
+            return unwrapExecution((SpiroidCommand) result, sender, simulate, args, index + 1);
+        if (result instanceof Formattable)
+            return String.format("%s", result);
+        if (result instanceof MessageSupplier)
+            return ((MessageSupplier) result).get();
+        return String.valueOf(result);
     }
 
     @Override
