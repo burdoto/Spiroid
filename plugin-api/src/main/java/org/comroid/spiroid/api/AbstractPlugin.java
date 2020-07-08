@@ -44,7 +44,6 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     public final YamlConfiguration pluginYML;
     public final Version version;
     public final FileHandle configDir;
-    protected final CycleHandler cycleHandler;
     protected final Map<String, Configuration> configs = new ConcurrentHashMap<>();
     protected final Map<String, SpiroidCommand> commands = TrieMap.ofString();
     private final Span<String> configNames;
@@ -83,9 +82,6 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
         } catch (NullPointerException npe) {
             throw new AssertionError(npe);
         }
-
-        this.cycleHandler = new CycleHandler(this);
-        cycleHandler.accept(new Cyclable.Primitive(this::saveConfig));
 
         this.version = new Version(Optional.ofNullable(pluginYML.getString("version"))
                 .orElseThrow(() -> new AssertionError("Version not found in plugin.yml!")));
@@ -175,7 +171,27 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     }
 
     @Override
-    public boolean onCommand(
+    public final void onLoad() {
+        super.onLoad();
+        load();
+        saveDefaultConfig();
+    }
+
+    @Override
+    public final void onEnable() {
+        super.onEnable();
+        enable();
+    }
+
+    @Override
+    public final void onDisable() {
+        super.onDisable();
+        disable();
+        saveDefaultConfig();
+    }
+
+    @Override
+    public final boolean onCommand(
             @NotNull CommandSender sender,
             @NotNull Command command,
             @NotNull String label,
@@ -190,7 +206,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(
+    public final @Nullable List<String> onTabComplete(
             @NotNull CommandSender sender,
             @NotNull Command command,
             @NotNull String label,
@@ -213,26 +229,6 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     }
 
     protected void disable() {
-    }
-
-    @Override
-    public final void onLoad() {
-        super.onLoad();
-        load();
-    }
-
-    @Override
-    public final void onEnable() {
-        super.onEnable();
-        enable();
-        getServer().getScheduler().scheduleSyncDelayedTask(this, cycleHandler);
-    }
-
-    @Override
-    public final void onDisable() {
-        super.onDisable();
-        disable();
-        saveDefaultConfig();
     }
 
     protected Optional<MemoryConfiguration> getConfigDefaults(String name) {
