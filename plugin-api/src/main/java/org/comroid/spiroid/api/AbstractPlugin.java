@@ -204,35 +204,14 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
             @NotNull String label,
             @NotNull String[] args
     ) {
-        // old code
         final SpiroidCommand cmd = commands.get(label);
-        final List<String> yields = new ArrayList<>(0);
 
         if (cmd == null)
-            return yields;
+            return null;
 
-        String response;
-
-        try {
-            final Object result = unwrapExecution(cmd, sender, false, args, 0);
-
-            Arrays.stream(result.getClass().getMethods())
-                    .sequential()
-                    .filter(mtd -> !mtd.getDeclaringClass().equals(Object.class))
-                    .map(Method::getName)
-                    .filter(((Predicate<String>) "toString"::equals).negate())
-                    .forEach(yields::add);
-        } catch (Throwable any) {
-            yields.add(String.format(
-                    "%sCommand failed: %s: %s",
-                    ChatColor.RED,
-                    any.getClass().getName(),
-                    any.getMessage()
-            ));
-            return yields;
-        }
-
-        return yields;
+        return cmd.findSubcommand(args, 0)
+                .map(sub -> sub.getTabCompletions(args.length > 0 ? args[args.length - 1] : ""))
+                .orElse(null);
     }
 
     protected Object unwrapExecution(
