@@ -7,5 +7,5 @@ apply from: 'jar.gradle'
 dependencies {
     implementation project(':Spiroid:plugin-api')
 
-    implementation 'org.comroid:upd8r:0.1.2-SNAPSHOT'
+    implementation 'org.comroid:upd8r:0.1.4-SNAPSHOT'
 }
