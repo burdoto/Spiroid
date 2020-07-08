@@ -67,7 +67,14 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     }
 
     protected AbstractPlugin(String... configNames) {
+        this(new SpiroidCommand[0], configNames);
+    }
+
+    protected AbstractPlugin(SpiroidCommand[] baseCommands, String... configNames) {
         instance = this;
+
+        for (SpiroidCommand cmd : baseCommands)
+            commands.put(cmd.getName(), cmd);
 
         this.configNames = Span.<String>make()
                 .initialValues(configNames)
@@ -181,30 +188,13 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
             @NotNull String label,
             @NotNull String[] args
     ) {
-        // old code
         final SpiroidCommand cmd = commands.get(label);
 
         if (cmd == null)
             return false;
         String response;
 
-        try {
-            final Object result = unwrapExecution(cmd, sender, false, args, 0);
-
-            if (result instanceof MessageSupplier)
-                response = ((MessageSupplier) result).get();
-            else response = String.format("%s", result);
-        } catch (Throwable any) {
-            response = String.format(
-                    "%sCommand failed: %s: %s",
-                    ChatColor.RED,
-                    any.getClass().getName(),
-                    any.getMessage()
-            );
-        }
-
-        sender.sendMessage(response);
-        return true;
+        return cmd.wrapExecution(sender, args, 0);
     }
 
     @Override
