@@ -12,6 +12,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.comroid.common.Version;
 import org.comroid.common.io.FileHandle;
 import org.comroid.common.upd8r.model.UpdateChannel;
+import org.comroid.mutatio.span.Span;
 import org.comroid.spiroid.api.command.CommandHandler;
 import org.comroid.spiroid.api.cycle.Cyclable;
 import org.comroid.spiroid.api.cycle.CycleHandler;
@@ -20,6 +21,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +49,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     protected final CycleHandler cycleHandler;
     protected final Map<String, Configuration> configs = new ConcurrentHashMap<>();
     protected final CommandHandler commandHandler;
+    private final Span<String> configNames;
     protected @Nullable UpdateChannel updateChannel;
 
     public Optional<UpdateChannel> getUpdateChannel() {
@@ -63,18 +66,29 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
         return Objects.requireNonNull(getConfig("config"), "Could not get default configuration file");
     }
 
-    protected AbstractPlugin() {
-        pluginYML = YamlConfiguration.loadConfiguration(new BufferedReader(new InputStreamReader(Objects.requireNonNull(this
-                .getClassLoader()
-                .getResourceAsStream("plugin.yml"), "Could not find plugin.yml!"))));
-        cycleHandler = new CycleHandler(this);
+    protected AbstractPlugin(String... configNames) {
+        this.configNames = Span.<String>make()
+                .initialValues(configNames)
+                .span();
+
+        try (
+                InputStream is = this.getClassLoader().getResourceAsStream("plugin.yml");
+                InputStreamReader isr = new InputStreamReader(Objects.requireNonNull(is, "plugin.yml not found"));
+        ) {
+            this.pluginYML = YamlConfiguration.loadConfiguration(isr);
+        } catch (IOException ioe) {
+            throw new RuntimeException("Error reading plugin.yml", ioe);
+        } catch (NullPointerException npe) {
+            throw new AssertionError(npe);
+        }
+
+        this.cycleHandler = new CycleHandler(this);
         cycleHandler.accept(new Cyclable.Primitive(this::saveConfig));
 
-        version = new Version(Optional.ofNullable(pluginYML.getString("version"))
+        this.version = new Version(Optional.ofNullable(pluginYML.getString("version"))
                 .orElseThrow(() -> new AssertionError("Version not found in plugin.yml!")));
-        commandHandler = new CommandHandler();
-        configDir = new FileHandle(getDataFolder());
-
+        this.commandHandler = new CommandHandler();
+        this.configDir = new FileHandle(getDataFolder());
         configDir.validateDir();
     }
 
@@ -142,7 +156,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
     @Override
     public final void saveDefaultConfig() throws UnsupportedOperationException {
-        configs.keySet().forEach(key -> {
+        configs.forEach((name, config) -> {
             final Configuration cfg = configs.compute(key,
                     (name, config) -> getConfigDefaults(name)
                             .map(defaults -> {
