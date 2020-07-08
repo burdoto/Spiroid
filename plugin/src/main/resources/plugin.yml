@@ -1,5 +1,5 @@
 main: org.comroid.spiroid.Spiroid
-name: ${rootProject.name}
+name: ${parent.name}
 version: $pluginVersion
 author: $userbase
 description: $pluginDescription

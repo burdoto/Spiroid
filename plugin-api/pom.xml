@@ -10,9 +10,9 @@
   <groupId>org.comroid</groupId>
   <artifactId>spiroid-api</artifactId>
   <version>0.3.0-SNAPSHOT</version>
-  <name>Spiroid</name>
+  <name>repo</name>
   <description>The API for the Spiroid Spigot utilities Plugin</description>
-  <url>https://github.com/comroid-git/Spiroid</url>
+  <url>https://github.com/comroid-git/repo</url>
   <inceptionYear>2020</inceptionYear>
   <licenses>
     <license>
@@ -28,9 +28,9 @@
     </developer>
   </developers>
   <scm>
-    <connection>scm:git:git://github.com/comroid-git/Spiroid.git</connection>
-    <developerConnection>scm:git:ssh://github.com/comroid-git/Spiroid.git</developerConnection>
-    <url>https://github.com/comroid-git/Spiroid</url>
+    <connection>scm:git:git://github.com/comroid-git/repo.git</connection>
+    <developerConnection>scm:git:ssh://github.com/comroid-git/repo.git</developerConnection>
+    <url>https://github.com/comroid-git/repo</url>
   </scm>
   <dependencies>
     <dependency>

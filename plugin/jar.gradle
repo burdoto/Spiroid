@@ -1,15 +1,20 @@
 task buildPlugin(type: Copy, dependsOn: 'shadowJar') {
     from shadowJar.outputs.files.singleFile
+    into file("$buildDir/plugin")
     rename { String filename -> return pluginJarName }
-    into file("$rootDir/out/plugin")
 }
 
 task testPlugin(type: Copy, dependsOn: ['deleteTestPlugin', 'buildPlugin']) {
-    from buildPlugin.outputs.files.singleFile;
+    System.out.println("Test Server Directory: $testServerDir")
+    System.out.println("Plugin Target File: $testServerDir\\plugins\\$pluginJarName")
+
+    from buildPlugin.outputs.files.singleFile
     into file("$testServerDir/plugins/")
 }
 
 task deleteTestPlugin(type: Delete) {
+    outputs.upToDateWhen { !file("$testServerDir/plugins/$pluginJarName").exists() }
+
     delete "$testServerDir/plugins/$pluginJarName"
 }
 

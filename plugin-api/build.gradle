@@ -39,8 +39,15 @@ task javadocJar(type: Jar) {
 compileJava.options.encoding = 'UTF-8'
 
 dependencies {
-    implementation 'org.comroid:upd8r:0.1.2-SNAPSHOT'
-    implementation 'org.comroid:uniform:0.12.1-SNAPSHOT'
+    api project(':common-util:interfaces')
+    api project(':common-util:upd8r')
+    api project(':common-util:uniform')
+
+    runtimeOnly('com.google.flogger:flogger-log4j-backend:0.5.1') {
+        exclude group: 'com.sun.jmx', module: 'jmxri'
+        exclude group: 'com.sun.jdmk', module: 'jmxtools'
+        exclude group: 'javax.jms', module: 'jms'
+    }
 }
 
 apply from: 'publishing.gradle'

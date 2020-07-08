@@ -1,4 +1,4 @@
-version = rootProject.version
+version = parent.version
 
 apply plugin: 'com.github.johnrengelman.shadow'
 apply from: 'vars.gradle'

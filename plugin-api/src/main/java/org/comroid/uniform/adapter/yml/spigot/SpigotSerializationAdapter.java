@@ -3,6 +3,8 @@ package org.comroid.uniform.adapter.yml.spigot;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.comroid.api.Polyfill;
+import org.comroid.uniform.DataStructureType;
 import org.comroid.uniform.SerializationAdapter;
 import org.comroid.uniform.node.UniArrayNode;
 import org.comroid.uniform.node.UniNode;
@@ -11,9 +13,16 @@ import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 
-public class SpigotSerializationAdapter extends SerializationAdapter<ConfigurationSection, ConfigurationSection, ConfigurationSection> {
-    protected SpigotSerializationAdapter(String mimeType, Class<ConfigurationSection> configurationSectionClass, Class<ConfigurationSection> configurationSectionClass2) {
+public final class SpigotSerializationAdapter extends SerializationAdapter<ConfigurationSection, ConfigurationSection, ConfigurationSection> {
+    public static final SpigotSerializationAdapter INSTANCE = new SpigotSerializationAdapter();
+
+    private SpigotSerializationAdapter() {
         super("application/x-yml", ConfigurationSection.class, ConfigurationSection.class);
+    }
+
+    @Override
+    public DataStructureType<SpigotSerializationAdapter, ConfigurationSection, ? extends ConfigurationSection> typeOfData(String data) {
+        return Polyfill.uncheckedCast(objectType);
     }
 
     @Override

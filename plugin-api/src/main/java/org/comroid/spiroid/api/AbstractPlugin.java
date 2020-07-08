@@ -3,6 +3,7 @@ package org.comroid.spiroid.api;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -11,13 +12,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.comroid.common.Version;
 import org.comroid.common.io.FileHandle;
 import org.comroid.common.upd8r.model.UpdateChannel;
+import org.comroid.spiroid.api.command.CommandHandler;
 import org.comroid.spiroid.api.cycle.Cyclable;
 import org.comroid.spiroid.api.cycle.CycleHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
@@ -44,7 +45,8 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     public final Version version;
     public final FileHandle configDir;
     protected final CycleHandler cycleHandler;
-    protected final Map<String, FileConfiguration> configs = new ConcurrentHashMap<>();
+    protected final Map<String, Configuration> configs = new ConcurrentHashMap<>();
+    protected final CommandHandler commandHandler;
     protected @Nullable UpdateChannel updateChannel;
 
     public Optional<UpdateChannel> getUpdateChannel() {
@@ -71,21 +73,20 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
         version = new Version(Optional.ofNullable(pluginYML.getString("version"))
                 .orElseThrow(() -> new AssertionError("Version not found in plugin.yml!")));
         commandHandler = new CommandHandler();
-        configDir = new FileHandle(configPathBase());
+        configDir = new FileHandle(getDataFolder());
 
         configDir.validateDir();
     }
 
     public final @NotNull FileConfiguration getConfig(String name) {
-        final FileHandle dir = new FileHandle(configPathBase());
-        if (!dir.exists() && dir.mkdir())
-            getLogger().fine("Created configuration directory: " + dir);
-        else if (!dir.exists())
-            throw new UnsupportedOperationException("Could not create configuration directory: " + dir);
+        if (!configDir.exists() && configDir.mkdir())
+            getLogger().fine("Created configuration directory: " + configDir);
+        else if (!configDir.exists())
+            throw new UnsupportedOperationException("Could not create configuration directory: " + configDir);
 
-        return configs.computeIfAbsent(name, key -> {
+        return (FileConfiguration) configs.computeIfAbsent(name, key -> {
             try { // if there is no configuration; create it:
-                final FileHandle file = configDir.createSubFile(key);
+                final FileHandle file = configDir.createSubFile(key + ".yml");
 
                 if (!file.exists() && !file.createNewFile() /* create the file if necessary */)
                     throw new IOException("Could not create configuration file: " + file.getAbsolutePath());
@@ -102,11 +103,6 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
         });
     }
 
-    protected final String configPathBase() {
-        // spigot is asking users to use the server root dir as the working directory
-        return "plugins/" + getName();
-    }
-
     @Override
     public final void reloadConfig() {
         getLogger().info("Reloading from configuration files...");
@@ -114,8 +110,10 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
         configs.forEach((name, config) -> {
             try {
                 final FileHandle file = configDir.createSubFile(name + ".yml");
-                System.out.println("file1 = " + file);
-                config.load(file);
+
+                if (config instanceof FileConfiguration)
+                    ((FileConfiguration) config).load(file);
+                else throw new AssertionError("Config is not FileConfiguration");
             } catch (InvalidConfigurationException | IOException e) {
                 getLogger().log(Level.SEVERE, "Error reloading config \"" + name + "\"", e);
             }
@@ -132,9 +130,11 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
         configs.forEach((name, config) -> {
             try {
                 final FileHandle file = configDir.createSubFile(name + ".yml");
-                System.out.println("file2 = " + file);
-                config.load(file);
-            } catch (InvalidConfigurationException | IOException e) {
+
+                if (config instanceof FileConfiguration)
+                    ((FileConfiguration) config).save(file);
+                else throw new AssertionError("Config is not FileConfiguration");
+            } catch (IOException e) {
                 getLogger().log(Level.SEVERE, "Error saving config \"" + name + "\"", e);
             }
         });
@@ -142,16 +142,34 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
     @Override
     public final void saveDefaultConfig() throws UnsupportedOperationException {
-        configs.computeIfPresent("config", (name, config) -> {
+        configs.keySet().forEach(key -> {
+            final Configuration cfg = configs.compute(key,
+                    (name, config) -> getConfigDefaults(name)
+                            .map(defaults -> {
+                                if (config == null) {
+                                    final YamlConfiguration yml = YamlConfiguration
+                                            .loadConfiguration(configDir.createSubFile(key + ".yml"));
+                                    yml.setDefaults(defaults);
+                                    return yml;
+                                }
+
+                                config.setDefaults(defaults);
+                                return config;
+                            }).orElseGet(() -> {
+                                if (config == null) return YamlConfiguration
+                                        .loadConfiguration(configDir.createSubFile(key + ".yml"));
+                                return config;
+                            }));
+
             try {
-                final FileHandle file = configDir.createSubFile(name + ".yml");
-                System.out.println("file3 = " + file);
-                config.load(file);
-            } catch (InvalidConfigurationException | IOException e) {
+                final FileHandle file = configDir.createSubFile(key + ".yml");
+
+                if (cfg instanceof FileConfiguration)
+                    ((FileConfiguration) cfg).save(file);
+                else throw new AssertionError("Config is not FileConfiguration");
+            } catch (IOException e) {
                 getLogger().log(Level.SEVERE, "Error saving default configuration", e);
             }
-
-            return null; // voided
         });
     }
 

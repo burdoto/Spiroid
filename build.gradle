@@ -20,8 +20,9 @@ subprojects {
     apply plugin: 'java'
 
     ext {
-        mcVersion = '1.14.4'
+        mcVersion = '1.16.1'
         spigotRC = 'R0.1'
+        pluginVersion = version.replace("-SNAPSHOT", "-alpha")
     }
 
     group rootProject.group
