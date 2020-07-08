@@ -1,6 +1,5 @@
 package org.comroid.spiroid.api;
 
-import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
@@ -10,7 +9,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.comroid.common.Version;
-import org.comroid.common.info.MessageSupplier;
 import org.comroid.common.io.FileHandle;
 import org.comroid.common.upd8r.model.UpdateChannel;
 import org.comroid.mutatio.span.Span;
@@ -24,10 +22,11 @@ import org.jetbrains.annotations.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Method;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Predicate;
 import java.util.logging.Level;
 
 public abstract class AbstractPlugin extends JavaPlugin implements Version.Container {
@@ -180,7 +179,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
                     }
                 });
     }
-//    /minecord connect 712424223854821467
+
     @Override
     public boolean onCommand(
             @NotNull CommandSender sender,
@@ -213,21 +212,33 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
                 .orElse(null);
     }
 
+    protected void load() {
+    }
+
+    protected void enable() {
+    }
+
+    protected void disable() {
+    }
+
     @Override
-    public void onLoad() {
+    public final void onLoad() {
         super.onLoad();
+        load();
     }
 
     @Override
-    public void onDisable() {
-        super.onDisable();
-    }
-
-    @Override
-    public void onEnable() {
+    public final void onEnable() {
         super.onEnable();
-
+        enable();
         getServer().getScheduler().scheduleSyncDelayedTask(this, cycleHandler);
+    }
+
+    @Override
+    public final void onDisable() {
+        super.onDisable();
+        disable();
+        saveDefaultConfig();
     }
 
     protected Optional<MemoryConfiguration> getConfigDefaults(String name) {

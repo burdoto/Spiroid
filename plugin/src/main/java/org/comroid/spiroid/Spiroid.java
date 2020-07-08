@@ -69,11 +69,9 @@ public final class Spiroid extends AbstractPlugin {
     }
 
     @Override
-    public void onLoad() {
+    public void load() {
         INSTANCE = this;
         LOGGER = getLogger();
-
-        super.onLoad();
 
         FileConfiguration config = getConfig("config");
         if (!config.isSet("defaults.claim-size"))
@@ -87,13 +85,11 @@ public final class Spiroid extends AbstractPlugin {
     }
 
     @Override
-    public void onDisable() {
-        super.onDisable();
-
+    public void disable() {
     }
 
     @Override
-    public void onEnable() {
+    public void enable() {
         try {
             CONST = new Const();
             org.bukkit.plugin.Plugin worldEdit = Bukkit.getPluginManager().getPlugin("WorldEdit");
@@ -106,8 +102,6 @@ public final class Spiroid extends AbstractPlugin {
                 SignChangeEvent.getHandlerList().unregister(worldGuard);
                 LOGGER.info("Disabled WorldGuard SignChangeEvent listener! Continuing enabling...");
             }
-
-            super.onEnable();
 
             World configVersion = Bukkit.getWorld("configVersion");
             if (configVersion != null)
