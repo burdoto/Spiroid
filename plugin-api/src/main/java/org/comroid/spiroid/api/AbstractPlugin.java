@@ -175,7 +175,13 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     }
 
     @Override
-    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public boolean onCommand(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String label,
+            @NotNull String[] args
+    ) {
+        // old code
         final SpiroidCommand cmd = commands.get(label);
 
         if (cmd == null)
@@ -202,7 +208,13 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     }
 
     @Override
-    public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+    public @Nullable List<String> onTabComplete(
+            @NotNull CommandSender sender,
+            @NotNull Command command,
+            @NotNull String label,
+            @NotNull String[] args
+    ) {
+        // old code
         final SpiroidCommand cmd = commands.get(label);
         final List<String> yields = new ArrayList<>(0);
 
