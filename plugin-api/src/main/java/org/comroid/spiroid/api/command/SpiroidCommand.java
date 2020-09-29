@@ -1,7 +1,7 @@
 package org.comroid.spiroid.api.command;
 
 import org.bukkit.command.CommandSender;
-import org.comroid.common.ref.Named;
+import org.comroid.api.Named;
 import org.comroid.common.ref.StaticCache;
 import org.comroid.trie.TrieMap;
 import org.jetbrains.annotations.ApiStatus.Internal;

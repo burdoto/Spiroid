@@ -9,7 +9,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.comroid</groupId>
   <artifactId>spiroid-api</artifactId>
-  <version>0.3.0-SNAPSHOT</version>
+  <version>0.4.0-SNAPSHOT</version>
   <name>repo</name>
   <description>The API for the Spiroid Spigot utilities Plugin</description>
   <url>https://github.com/comroid-git/repo</url>
@@ -35,15 +35,35 @@
   <dependencies>
     <dependency>
       <groupId>org.comroid</groupId>
-      <artifactId>upd8r</artifactId>
-      <version>0.1.2-SNAPSHOT</version>
-      <scope>runtime</scope>
+      <artifactId>api</artifactId>
+      <version>0.10.2-SNAPSHOT</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.comroid</groupId>
       <artifactId>uniform</artifactId>
-      <version>0.12.1-SNAPSHOT</version>
+      <version>0.16.1-SNAPSHOT</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.flogger</groupId>
+      <artifactId>flogger-log4j-backend</artifactId>
+      <version>0.5.1</version>
       <scope>runtime</scope>
+      <exclusions>
+        <exclusion>
+          <artifactId>jmxri</artifactId>
+          <groupId>com.sun.jmx</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jmxtools</artifactId>
+          <groupId>com.sun.jdmk</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>jms</artifactId>
+          <groupId>javax.jms</groupId>
+        </exclusion>
+      </exclusions>
     </dependency>
   </dependencies>
 </project>

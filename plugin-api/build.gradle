@@ -39,8 +39,8 @@ task javadocJar(type: Jar) {
 compileJava.options.encoding = 'UTF-8'
 
 dependencies {
-    api project(':common-util:interfaces')
-    api project(':common-util:uniform')
+    api project(':api')
+    api project(':guardian:uniform')
 
     runtimeOnly('com.google.flogger:flogger-log4j-backend:0.5.1') {
         exclude group: 'com.sun.jmx', module: 'jmxri'
