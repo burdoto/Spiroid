@@ -12,9 +12,6 @@ import org.comroid.common.Version;
 import org.comroid.common.io.FileHandle;
 import org.comroid.mutatio.span.Span;
 import org.comroid.spiroid.api.command.SpiroidCommand;
-import org.comroid.spiroid.api.cycle.Cyclable;
-import org.comroid.spiroid.api.cycle.CycleHandler;
-import org.comroid.trie.TrieMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -45,7 +42,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     public final Version version;
     public final FileHandle configDir;
     protected final Map<String, Configuration> configs = new ConcurrentHashMap<>();
-    protected final Map<String, SpiroidCommand> commands = TrieMap.ofString();
+    protected final Map<String, SpiroidCommand> commands = new ConcurrentHashMap<>();
     private final Span<String> configNames;
 
     @Override

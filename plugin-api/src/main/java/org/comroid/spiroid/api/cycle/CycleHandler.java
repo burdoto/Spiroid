@@ -1,14 +1,13 @@
 package org.comroid.spiroid.api.cycle;
 
+import org.bukkit.Bukkit;
+import org.comroid.spiroid.api.AbstractPlugin;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.logging.Level;
-
-import org.comroid.spiroid.api.AbstractPlugin;
-
-import org.bukkit.Bukkit;
 
 import static org.comroid.spiroid.api.util.BukkitUtil.time2tick;
 

@@ -1,14 +1,5 @@
 package org.comroid.spiroid.api.util;
 
-import java.io.Closeable;
-import java.io.IOException;
-import java.net.URLClassLoader;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
-
-import javax.swing.ButtonGroup;
-
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -18,22 +9,14 @@ import org.bukkit.permissions.PermissionAttachmentInfo;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
+
 public final class BukkitUtil {
     private BukkitUtil() {
-    }
-    
-    public boolean unloadPlugin(Plugin plugin) {
-        Bukkit.getPluginManager().disablePlugin(plugin);
-        
-        final ClassLoader classLoader = plugin.getClass().getClassLoader();
-        
-        try {
-            ((Closeable) classLoader).close();
-            
-            return true;
-        } catch (IOException e) {
-            throw new RuntimeException("Could not close plugin class loader", e);
-        }
     }
 
     public static Optional<Player> getPlayer(CommandSender cmdSender) {
@@ -65,10 +48,10 @@ public final class BukkitUtil {
             Supplier<Integer> fallback
     ) {
         //if (entity.hasPermission(permission.node + "*"))
-           // return Integer.MAX_VALUE;
+        // return Integer.MAX_VALUE;
         return entity.getEffectivePermissions()
                 .stream()
-               // .filter(perm -> perm.getPermission().indexOf(permission.node) == 0)
+                // .filter(perm -> perm.getPermission().indexOf(permission.node) == 0)
                 .findFirst()
                 .map(PermissionAttachmentInfo::getPermission)
                 .map(str -> {
@@ -81,5 +64,19 @@ public final class BukkitUtil {
 
     public static long time2tick(long time, TimeUnit unit) {
         return unit.toSeconds(time) * 20; // TODO: 15.01.2020 Use current TPS instead of '20'
+    }
+
+    public boolean unloadPlugin(Plugin plugin) {
+        Bukkit.getPluginManager().disablePlugin(plugin);
+
+        final ClassLoader classLoader = plugin.getClass().getClassLoader();
+
+        try {
+            ((Closeable) classLoader).close();
+
+            return true;
+        } catch (IOException e) {
+            throw new RuntimeException("Could not close plugin class loader", e);
+        }
     }
 }

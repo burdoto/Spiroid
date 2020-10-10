@@ -6,6 +6,6 @@ public class AutocompleteTree {
     public AutocompleteTree(String base) {
         this.base = base;
     }
-    
+
     // todo
 }

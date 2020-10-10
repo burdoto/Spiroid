@@ -13,10 +13,7 @@ import org.bukkit.inventory.Inventory;
 import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.Contract;
 
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-import static java.lang.Math.pow;
-import static java.lang.Math.sqrt;
+import static java.lang.Math.*;
 import static org.comroid.spiroid.api.util.MathUtil.raising;
 
 public final class WorldUtil {
@@ -25,7 +22,7 @@ public final class WorldUtil {
     public static final int Y = 1;
     public static final int Z = 2;
     //endregion
-    
+
     private WorldUtil() {
     }
 
@@ -106,9 +103,9 @@ public final class WorldUtil {
 
     public static boolean isExcludedWorld(Player player) {
         //if (Plugin.Permission.ADMIN.check(player, ""))
-            return false;
+        return false;
         //return Plugin.getConfig("config")
-          ////    .contains(player.getWorld().getName());
+        ////    .contains(player.getWorld().getName());
     }
 
     public final class ChestState {

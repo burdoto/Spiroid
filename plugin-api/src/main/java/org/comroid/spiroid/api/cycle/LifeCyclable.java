@@ -1,11 +1,11 @@
 package org.comroid.spiroid.api.cycle;
 
-import java.io.IOException;
-
 import org.comroid.spiroid.api.exception.CycleException;
 import org.comroid.spiroid.api.exception.DeinitializerException;
 import org.comroid.spiroid.api.exception.InitializerException;
 import org.comroid.spiroid.api.model.BiInitializable;
+
+import java.io.IOException;
 
 public interface LifeCyclable extends BiInitializable, Cyclable {
     @Override

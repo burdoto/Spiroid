@@ -7,6 +7,10 @@ import org.jetbrains.annotations.Contract;
 public interface PlayerNotifier extends Notifier {
     Player getPlayer();
 
+    static PlayerNotifier of(final Player player) {
+        return () -> player;
+    }
+
     @Override
     default void sendMessage(MessageLevel level, MessageSupplier messageSupplier) {
         getPlayer().sendMessage(level.apply(messageSupplier));
@@ -14,10 +18,6 @@ public interface PlayerNotifier extends Notifier {
 
     default TitleApi title(String title) {
         return new TitleApi(this, title);
-    }
-
-    static PlayerNotifier of(final Player player) {
-        return () -> player;
     }
 
     final class TitleApi {
@@ -42,14 +42,14 @@ public interface PlayerNotifier extends Notifier {
 
         public TitleApi time(int sec, int fade) {
             this.fadeIn = this.fadeOut = sec / fade;
-            this.stay   = sec / (fade * 2);
+            this.stay = sec / (fade * 2);
 
             return this;
         }
 
         public TitleApi time(int fadeIn, int stay, int fadeOut) {
-            this.fadeIn  = fadeIn;
-            this.stay    = stay;
+            this.fadeIn = fadeIn;
+            this.stay = stay;
             this.fadeOut = fadeOut;
 
             return this;
