@@ -3,7 +3,6 @@ package org.comroid.spiroid.api.command;
 import org.bukkit.command.CommandSender;
 import org.comroid.api.Named;
 import org.comroid.common.ref.StaticCache;
-import org.comroid.trie.TrieMap;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
 import org.jetbrains.annotations.Nullable;
@@ -12,6 +11,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -25,7 +25,7 @@ public interface SpiroidCommand extends Named {
     default Map<String, SpiroidCommand> getSubcommandsOrdered() {
         return Collections.unmodifiableMap(
                 StaticCache.access(this, "ordered", () -> {
-                    final TrieMap<String, SpiroidCommand> map = TrieMap.ofString();
+                    final Map<String, SpiroidCommand> map = new ConcurrentHashMap<>();
                     for (SpiroidCommand cmd : getSubcommands())
                         map.put(cmd.getName(), cmd);
                     return map;

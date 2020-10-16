@@ -5,7 +5,7 @@ import org.comroid.common.info.MessageSupplier;
 
 import java.util.function.Function;
 
-public interface MessageLevel extends Function<MessageSupplier, String> {
+public interface MessageLevel extends Function<String, String> {
     ChatColor getStandardColor();
 
     ChatColor getHighlightColor();

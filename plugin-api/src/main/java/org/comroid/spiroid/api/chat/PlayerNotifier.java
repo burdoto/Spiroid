@@ -12,8 +12,8 @@ public interface PlayerNotifier extends Notifier {
     }
 
     @Override
-    default void sendMessage(MessageLevel level, MessageSupplier messageSupplier) {
-        getPlayer().sendMessage(level.apply(messageSupplier));
+    default void sendMessage(MessageLevel level, String message) {
+        getPlayer().sendMessage(level.apply(message));
     }
 
     default TitleApi title(String title) {

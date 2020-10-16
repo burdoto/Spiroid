@@ -7,22 +7,25 @@ import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.comroid.common.Version;
 import org.comroid.common.io.FileHandle;
 import org.comroid.mutatio.span.Span;
+import org.comroid.spiroid.api.chat.PlayerNotifier;
 import org.comroid.spiroid.api.command.SpiroidCommand;
+import org.comroid.spiroid.api.util.BukkitUtil;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.function.Supplier;
 import java.util.logging.Level;
 
 public abstract class AbstractPlugin extends JavaPlugin implements Version.Container {
@@ -217,6 +220,39 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
         return cmd.findSubcommand(args, 0)
                 .map(sub -> sub.getTabCompletions(args.length > 0 ? args[args.length - 1] : ""))
                 .orElse(null);
+    }
+
+    public final CompletableFuture<Void> schedule(long time, TimeUnit unit, Runnable task) {
+        return schedule(time, unit, () -> {
+            task.run();
+            return null;
+        });
+    }
+
+    public final <T> CompletableFuture<T> schedule(long time, TimeUnit unit, Supplier<T> task) {
+        final CompletableFuture<T> future = new CompletableFuture<>();
+
+        getServer().getScheduler()
+                .runTaskLater(this,
+                        () -> {
+                            T var = null;
+                            try {
+                                var = task.get();
+                            } catch (Throwable t) {
+                                future.completeExceptionally(t);
+                            } finally {
+                                future.complete(var);
+                            }
+                        },
+                        BukkitUtil.time2tick(time, unit));
+
+        return future;
+    }
+
+    private final Map<UUID, PlayerNotifier> notifiers = new ConcurrentHashMap<>();
+
+    public final PlayerNotifier getPlayerNotifier(final Player player) {
+        return notifiers.computeIfAbsent(player.getUniqueId(), key -> PlayerNotifier.of(player));
     }
 
     protected void load() {
