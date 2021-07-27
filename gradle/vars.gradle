@@ -10,7 +10,6 @@ ext {
     userbase = 'comroid-git'
 
     projectDescription = 'Core Plugin with Utilities'
-    exportedProjects = parent.subprojects.collect { it.name }
 
     snapshot = project.version.endsWith('SNAPSHOT')
     mcVersion = '1.16.1'
@@ -20,7 +19,5 @@ ext {
     pluginVersion = version.replace("-SNAPSHOT", "-alpha")
 
     pluginJarName = "$project.name-mc$mcVersion@${project.version}.jar" as GStringImpl
-    testServerDir = System.getenv().containsKey('TEST_SERVER_DIR')
-            ? System.getenv('TEST_SERVER_DIR')
-            : file(".").absolutePath
+    testServerDir = getenv().containsKey('TEST_SERVER_DIR') ? getenv('TEST_SERVER_DIR') : "$project.rootDir/test/" as GStringImpl
 }

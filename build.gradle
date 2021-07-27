@@ -46,6 +46,12 @@ task javadocJar(type: Jar) {
 
 compileJava.options.encoding = 'UTF-8'
 
+processResources {
+    from(sourceSets.main.resources) {
+        expand project.properties
+    }
+}
+
 repositories {
     maven { url 'https://maven.comroid.org' }
     maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
