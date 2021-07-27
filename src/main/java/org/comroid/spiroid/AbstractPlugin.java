@@ -9,6 +9,7 @@ import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.comroid.common.Version;
 import org.comroid.common.io.FileHandle;
@@ -68,6 +69,10 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
     protected AbstractPlugin(SpiroidCommand[] baseCommands, String... configNames) {
         instance = this;
+
+        Plugin spiroid = Bukkit.getPluginManager().getPlugin("Spiroid");
+        if (spiroid != null && !spiroid.isEnabled())
+            Bukkit.getPluginManager().enablePlugin(spiroid);
 
         if (baseCommands.length == 0)
             getLogger().log(Level.WARNING, "No command Handlers are defined");
