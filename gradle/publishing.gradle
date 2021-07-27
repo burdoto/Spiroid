@@ -97,7 +97,7 @@ publishing {
 
             pom {
                 name = rootProject.name
-                version = project.version + buildId
+                version = project.version + '.' + buildId
                 description = project.projectDescription
                 inceptionYear = '2020'
                 url = "https://github.com/$userbase/$rootProject.name".toString()
