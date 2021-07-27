@@ -1,5 +1,6 @@
 package org.comroid.spiroid.api;
 
+import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
@@ -46,7 +47,8 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     public final FileHandle configDir;
     protected final Map<String, Configuration> configs = new ConcurrentHashMap<>();
     protected final Map<String, SpiroidCommand> commands = new ConcurrentHashMap<>();
-    private final Span<String> configNames;
+    private final Set<String> configNames;
+    private final Map<UUID, PlayerNotifier> notifiers = new ConcurrentHashMap<>();
 
     @Override
     public Version getVersion() {
@@ -70,9 +72,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
         for (SpiroidCommand cmd : baseCommands)
             commands.put(cmd.getName(), cmd);
 
-        this.configNames = Span.<String>make()
-                .initialValues(configNames)
-                .span();
+        this.configNames = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(configNames)));
 
         try (
                 InputStream is = this.getClassLoader().getResourceAsStream("plugin.yml");
@@ -172,22 +172,39 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
     @Override
     public final void onLoad() {
-        super.onLoad();
-        load();
-        saveDefaultConfig();
+        try {
+            super.onLoad();
+            load();
+            saveDefaultConfig();
+        } catch (Throwable t) {
+            String msg = "Unable to load " + this + ": [" + t.getClass().getSimpleName() + "] " + t.getMessage();
+            getLogger().log(Level.SEVERE, msg, t);
+            Bukkit.getPluginManager().disablePlugin(this);
+        }
     }
 
     @Override
     public final void onEnable() {
-        super.onEnable();
-        enable();
+        try {
+            super.onEnable();
+            enable();
+        } catch (Throwable t) {
+            String msg = "Unable to enable " + this + ": [" + t.getClass().getSimpleName() + "] " + t.getMessage();
+            getLogger().log(Level.SEVERE, msg, t);
+            Bukkit.getPluginManager().disablePlugin(this);
+        }
     }
 
     @Override
     public final void onDisable() {
+        try {
         super.onDisable();
         disable();
         saveDefaultConfig();
+        } catch (Throwable t) {
+            String msg = "Unable to gracefully disable " + this + ": [" + t.getClass().getSimpleName() + "] " + t.getMessage();
+            getLogger().log(Level.SEVERE, msg, t);
+        }
     }
 
     @Override
@@ -248,8 +265,6 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
         return future;
     }
-
-    private final Map<UUID, PlayerNotifier> notifiers = new ConcurrentHashMap<>();
 
     public final PlayerNotifier getPlayerNotifier(final Player player) {
         return notifiers.computeIfAbsent(player.getUniqueId(), key -> PlayerNotifier.of(player));
