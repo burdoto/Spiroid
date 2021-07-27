@@ -4,8 +4,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.comroid.spiroid.api.AbstractPlugin;
-import org.comroid.spiroid.api.command.SpiroidCommand;
+import org.comroid.spiroid.command.SpiroidCommand;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.logging.Logger;
