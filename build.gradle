@@ -23,7 +23,7 @@ task tcBuildId {
 }
 tasks.named('jar').configure { dependsOn tcBuildId }
 group 'org.comroid'
-version '0.4.0' + '.' + buildId
+version '0.4.0'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
