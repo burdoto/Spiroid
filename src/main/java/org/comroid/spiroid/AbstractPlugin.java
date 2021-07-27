@@ -70,10 +70,6 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     protected AbstractPlugin(SpiroidCommand[] baseCommands, String... configNames) {
         instance = this;
 
-        Plugin spiroid = Bukkit.getPluginManager().getPlugin("Spiroid");
-        if (spiroid != null && !spiroid.isEnabled())
-            Bukkit.getPluginManager().enablePlugin(spiroid);
-
         if (baseCommands.length == 0)
             getLogger().log(Level.WARNING, "No command Handlers are defined");
         for (SpiroidCommand cmd : baseCommands)
