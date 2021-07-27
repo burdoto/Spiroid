@@ -1,6 +1,6 @@
 main: org.comroid.spiroid.Spiroid
-name: ${parent.name}
-version: $pluginVersion
+name: $name
+version: $version
 author: $userbase
 description: $pluginDescription
 api-version: $mcVersionMj
