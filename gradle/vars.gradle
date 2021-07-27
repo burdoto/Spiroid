@@ -16,6 +16,7 @@ ext {
     mcVersion = '1.16.1'
     mcVersionMj = mcVersion.substring(0, mcVersion.lastIndexOf('.'))
     spigotRC = 'R0.1'
+    pluginDescription = "Core plugin containing Utilities"
     pluginVersion = version.replace("-SNAPSHOT", "-alpha")
 
     pluginJarName = "$parent.name-mc$mcVersion@${project.version}.jar" as GStringImpl
