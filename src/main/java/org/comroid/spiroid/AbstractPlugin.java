@@ -74,7 +74,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
         for (SpiroidCommand cmd : baseCommands)
             commands.put(cmd.getName(), cmd);
 
-        this.configNames = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(configNames)));
+        this.configNames = new HashSet<>(Arrays.asList(configNames));
 
         try (
                 InputStream is = this.getClassLoader().getResourceAsStream("plugin.yml");
