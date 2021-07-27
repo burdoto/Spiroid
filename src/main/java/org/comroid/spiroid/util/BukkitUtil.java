@@ -1,4 +1,4 @@
-package org.comroid.spiroid.api.util;
+package org.comroid.spiroid.util;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;

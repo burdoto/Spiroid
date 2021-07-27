@@ -1,4 +1,4 @@
-package org.comroid.spiroid.api.annotation;
+package org.comroid.spiroid.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

@@ -19,7 +19,7 @@ ext {
     pluginDescription = "Core plugin containing Utilities"
     pluginVersion = version.replace("-SNAPSHOT", "-alpha")
 
-    pluginJarName = "$parent.name-mc$mcVersion@${project.version}.jar" as GStringImpl
+    pluginJarName = "$project.name-mc$mcVersion@${project.version}.jar" as GStringImpl
     testServerDir = System.getenv().containsKey('TEST_SERVER_DIR')
             ? System.getenv('TEST_SERVER_DIR')
             : file(".").absolutePath

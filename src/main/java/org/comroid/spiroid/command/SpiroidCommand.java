@@ -1,4 +1,4 @@
-package org.comroid.spiroid.api.command;
+package org.comroid.spiroid.command;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;

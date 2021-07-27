@@ -1,7 +1,6 @@
-package org.comroid.spiroid.api.chat;
+package org.comroid.spiroid.chat;
 
 import org.bukkit.entity.Player;
-import org.comroid.common.info.MessageSupplier;
 import org.jetbrains.annotations.Contract;
 
 public interface PlayerNotifier extends Notifier {

@@ -1,7 +1,6 @@
-package org.comroid.spiroid.api.chat;
+package org.comroid.spiroid.chat;
 
 import org.bukkit.ChatColor;
-import org.comroid.common.info.MessageSupplier;
 
 import java.util.function.Function;
 

@@ -1,4 +1,4 @@
-package org.comroid.spiroid.api.util;
+package org.comroid.spiroid.util;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -14,7 +14,7 @@ import org.intellij.lang.annotations.MagicConstant;
 import org.jetbrains.annotations.Contract;
 
 import static java.lang.Math.*;
-import static org.comroid.spiroid.api.util.MathUtil.raising;
+import static org.comroid.spiroid.util.MathUtil.raising;
 
 public final class WorldUtil {
     //region Coordinate Array Indices

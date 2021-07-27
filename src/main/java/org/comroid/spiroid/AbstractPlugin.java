@@ -1,4 +1,4 @@
-package org.comroid.spiroid.api;
+package org.comroid.spiroid;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
@@ -12,10 +12,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.comroid.common.Version;
 import org.comroid.common.io.FileHandle;
-import org.comroid.spiroid.api.annotation.MinecraftPlugin;
-import org.comroid.spiroid.api.chat.PlayerNotifier;
-import org.comroid.spiroid.api.command.SpiroidCommand;
-import org.comroid.spiroid.api.util.BukkitUtil;
+import org.comroid.spiroid.annotation.MinecraftPlugin;
+import org.comroid.spiroid.chat.PlayerNotifier;
+import org.comroid.spiroid.command.SpiroidCommand;
+import org.comroid.spiroid.util.BukkitUtil;
 import org.comroid.util.ReflectionHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
