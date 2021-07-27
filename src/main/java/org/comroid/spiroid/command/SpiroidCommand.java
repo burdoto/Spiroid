@@ -1,5 +1,6 @@
 package org.comroid.spiroid.command;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.comroid.api.Named;
@@ -24,8 +25,12 @@ public interface SpiroidCommand extends Named {
         return Collections.unmodifiableMap(
                 StaticCache.access(this, "ordered", () -> {
                     final Map<String, SpiroidCommand> map = new ConcurrentHashMap<>();
-                    for (SpiroidCommand cmd : getSubcommands())
+                    for (SpiroidCommand cmd : getSubcommands()) {
                         map.put(cmd.getName(), cmd);
+                        // fixme: Consider aliases
+                        for (String alias : Bukkit.getCommandAliases().get(cmd.getName()))
+                            map.put(alias, cmd);
+                    }
                     return map;
                 })
         );

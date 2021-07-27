@@ -7,6 +7,7 @@ api-version: $mcVersionMj
 
 commands:
   spiroid:
+    aliases: sprd
     description: Spiroid configuration command
     permission: spiroid.info
     permission-message: "§7[§cSpiroid§7] §cYou are missing the permission: §bspiroid.info§c!"
