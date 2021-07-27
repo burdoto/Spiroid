@@ -12,16 +12,18 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.comroid.common.Version;
 import org.comroid.common.io.FileHandle;
-import org.comroid.mutatio.span.Span;
+import org.comroid.spiroid.api.annotation.MinecraftPlugin;
 import org.comroid.spiroid.api.chat.PlayerNotifier;
 import org.comroid.spiroid.api.command.SpiroidCommand;
 import org.comroid.spiroid.api.util.BukkitUtil;
+import org.comroid.util.ReflectionHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.annotation.ElementType;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
@@ -47,8 +49,10 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     public final FileHandle configDir;
     protected final Map<String, Configuration> configs = new ConcurrentHashMap<>();
     protected final Map<String, SpiroidCommand> commands = new ConcurrentHashMap<>();
+    private final MinecraftPlugin annotation;
     private final Set<String> configNames;
     private final Map<UUID, PlayerNotifier> notifiers = new ConcurrentHashMap<>();
+    private boolean loaded = false;
 
     @Override
     public Version getVersion() {
@@ -66,6 +70,9 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
     protected AbstractPlugin(SpiroidCommand[] baseCommands, String... configNames) {
         instance = this;
+
+        this.annotation = ReflectionHelper.findAnnotation(MinecraftPlugin.class, getClass(), ElementType.TYPE)
+                .orElseThrow(() -> new NoSuchElementException("Plugin class " + getClass().getSimpleName() + " is missing annotation @MinecraftPlugin"));
 
         if (baseCommands.length == 0)
             getLogger().log(Level.WARNING, "No command Handlers are defined");
@@ -107,8 +114,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
                     final YamlConfiguration loaded = YamlConfiguration.loadConfiguration(file);
                     getConfigDefaults(key).ifPresent(loaded::setDefaults);
 
-                    if (!configNames.contains(name))
-                        configNames.add(name);
+                    configNames.add(name);
 
                     return loaded;
                 }
@@ -173,9 +179,13 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     @Override
     public final void onLoad() {
         try {
+            for (String dep : annotation.dependencies())
+                if (Bukkit.getPluginManager().getPlugin(dep) == null)
+                    throw new NoSuchElementException("Missing dependency Plugin: " + dep);
             super.onLoad();
             load();
             saveDefaultConfig();
+            loaded = true;
         } catch (Throwable t) {
             String msg = "Unable to load " + this + ": [" + t.getClass().getSimpleName() + "] " + t.getMessage();
             getLogger().log(Level.SEVERE, msg, t);
@@ -185,6 +195,8 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
     @Override
     public final void onEnable() {
+        if (!loaded)
+            return;
         try {
             super.onEnable();
             enable();
@@ -197,10 +209,12 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
     @Override
     public final void onDisable() {
+        if (!loaded)
+            return;
         try {
-        super.onDisable();
-        disable();
-        saveDefaultConfig();
+            super.onDisable();
+            disable();
+            saveDefaultConfig();
         } catch (Throwable t) {
             String msg = "Unable to gracefully disable " + this + ": [" + t.getClass().getSimpleName() + "] " + t.getMessage();
             getLogger().log(Level.SEVERE, msg, t);
