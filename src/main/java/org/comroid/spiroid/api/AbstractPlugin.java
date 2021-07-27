@@ -65,6 +65,8 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     protected AbstractPlugin(SpiroidCommand[] baseCommands, String... configNames) {
         instance = this;
 
+        if (baseCommands.length == 0)
+            getLogger().log(Level.WARNING, "No command Handlers are defined");
         for (SpiroidCommand cmd : baseCommands)
             commands.put(cmd.getName(), cmd);
 
@@ -157,17 +159,15 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
     @Override
     public final void saveDefaultConfig() throws UnsupportedOperationException {
-        configNames.pipe()
-                .bi(this::getConfig)
-                .mapFirst(name -> configDir.createSubFile(name + ".yml"))
-                .forEach((file, config) -> {
-                    try {
-                        config.save(file);
-                    } catch (IOException e) {
-                        getLogger().log(Level.SEVERE, "Could not save configuration: " + file.getName(), e);
-                        getLogger().log(Level.CONFIG, "Faulty configuration:\n" + config.saveToString());
-                    }
-                });
+        for (String configName : configNames) {
+            try {
+                FileConfiguration config = getConfig(configName);
+                FileHandle file = configDir.createSubFile(configName + ".yml");
+                config.save(file);
+            } catch (IOException e) {
+                getLogger().log(Level.SEVERE, "Could not save " + configName, e);
+            }
+        }
     }
 
     @Override

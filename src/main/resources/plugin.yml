@@ -6,9 +6,7 @@ description: $pluginDescription
 api-version: $mcVersionMj
 
 commands:
-  e2uClaim:
-    aliases:
-      - spiconf
+  spiroid:
     description: Spiroid configuration command
-    permission: spiroid.admin
-    permission-message: "§7[§cSpiroid§7] §cYou are missing the permission: §bspiroid.admin§c!"
+    permission: spiroid.info
+    permission-message: "§7[§cSpiroid§7] §cYou are missing the permission: §bspiroid.info§c!"

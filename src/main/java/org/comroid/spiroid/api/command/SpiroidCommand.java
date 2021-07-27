@@ -1,5 +1,6 @@
 package org.comroid.spiroid.api.command;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.comroid.api.Named;
 import org.comroid.common.ref.StaticCache;
@@ -64,12 +65,17 @@ public interface SpiroidCommand extends Named {
     default boolean wrapExecution(CommandSender sender, String[] args, int index) {
         return findSubcommand(args, index)
                 .map(cmd -> {
-                    final String result = cmd.execute(sender, args);
+                    try {
+                        final String result = cmd.execute(sender, args);
 
-                    if (result != null && !result.isEmpty())
-                        sender.sendMessage(result);
+                        if (result != null && !result.isEmpty())
+                            sender.sendMessage(result);
 
-                    return result != null;
+                        return result != null;
+                    } catch (Throwable t) {
+                        sender.sendMessage(ChatColor.RED + "An internal " + t.getClass().getSimpleName() + " occurred!");
+                        return false;
+                    }
                 })
                 .orElse(false);
     }
