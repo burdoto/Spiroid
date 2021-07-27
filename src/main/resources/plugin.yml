@@ -1,0 +1,14 @@
+main: org.comroid.spiroid.Spiroid
+name: ${parent.name}
+version: $pluginVersion
+author: $userbase
+description: $pluginDescription
+api-version: $mcVersionMj
+
+commands:
+  e2uClaim:
+    aliases:
+      - spiconf
+    description: Spiroid configuration command
+    permission: spiroid.admin
+    permission-message: "§7[§cSpiroid§7] §cYou are missing the permission: §bspiroid.admin§c!"

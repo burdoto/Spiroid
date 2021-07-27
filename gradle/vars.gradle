@@ -4,7 +4,7 @@ ext {
     artifactName = 'Spiroid'
     userbase = 'comroid-git'
 
-    projectDescription = 'Implementation Logic of the Spiroid API plugin'
+    projectDescription = 'Core Plugin with Utilities'
     exportedProjects = parent.subprojects.collect { it.name }
 
     snapshot = project.version.endsWith('SNAPSHOT')

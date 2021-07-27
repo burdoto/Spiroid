@@ -7,46 +7,55 @@ tasks.findByName('wrapper')?.configure {
     distributionUrl = "https://services.gradle.org/distributions/gradle-$gradleVersion-all.zip"
 }
 
-apply plugin: 'java'
+apply plugin: 'java-library'
+apply plugin: 'com.github.johnrengelman.shadow'
+apply from: 'gradle/vars.gradle'
+apply from: 'gradle/jar.gradle'
 
 group 'org.comroid'
 version '0.4.0-SNAPSHOT'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
-ext {
-    pluginDescription = 'comroid Core Plugin'
+tasks.withType(Javadoc) {
+    source = sourceSets.main.java
+    options.encoding = 'UTF-8'
 }
 
-subprojects {
-    apply plugin: 'java'
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
 
-    ext {
-        mcVersion = '1.16.1'
-        spigotRC = 'R0.1'
-        pluginVersion = version.replace("-SNAPSHOT", "-alpha")
-    }
-
-    group rootProject.group
-    version rootProject.version
-
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
-
-    repositories {
-        mavenLocal()
-        maven {
-            url = 'https://maven.jetbrains.space/comroid/repo'
-            credentials.username = 'Anonymous.User'
-            credentials.password = 'anonymous'
-        }
-        maven { url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
-        jcenter()
-        maven { url = 'https://oss.sonatype.org/content/repositories/snapshots' }
-    }
-
-    dependencies {
-        compileOnly "org.spigotmc:spigot-api:$mcVersion-$spigotRC-SNAPSHOT"
-        compileOnly 'org.jetbrains:annotations:19.0.0'
+    try {
+        archiveClassifier.set 'sources'
+    } catch (MissingPropertyException ignored) {
+        classifier = "sources"
     }
 }
 
-task ciBuild(dependsOn: [':plugin:buildPlugin', ':plugin-api:buildPluginApi'])
+task javadocJar(type: Jar) {
+    dependsOn 'javadoc'
+
+    from javadoc.destinationDir
+
+    try {
+        archiveClassifier.set 'javadoc'
+    } catch (MissingPropertyException ignored) {
+        classifier = "javadoc"
+    }
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+repositories {
+    maven { url 'https://maven.comroid.org' }
+    maven { url 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/' }
+    mavenLocal()
+    mavenCentral()
+}
+
+dependencies {
+    compileOnly "org.spigotmc:spigot-api:$mcVersion-$spigotRC-SNAPSHOT"
+    compileOnly 'org.jetbrains:annotations:19.0.0'
+}
+
+apply from: 'gradle/publishing.gradle'

@@ -1,9 +1,0 @@
-version = parent.version
-
-apply plugin: 'com.github.johnrengelman.shadow'
-apply from: 'vars.gradle'
-apply from: 'jar.gradle'
-
-dependencies {
-    implementation project(':Spiroid:plugin-api')
-}
