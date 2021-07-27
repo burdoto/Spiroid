@@ -17,7 +17,12 @@ import java.util.stream.Stream;
 
 public interface SpiroidCommand extends Named {
     @Override
-    String getName();
+    default String getName() {
+        if (this instanceof Enum) {
+            return ((Enum<?>) this).name();
+        }
+        throw new AbstractMethodError();
+    }
 
     SpiroidCommand[] getSubcommands();
 
