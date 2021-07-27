@@ -10,7 +10,6 @@ tasks.findByName('wrapper')?.configure {
 apply plugin: 'java-library'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply from: 'gradle/vars.gradle'
-apply from: 'gradle/jar.gradle'
 
 group 'org.comroid'
 version '0.4.0-SNAPSHOT'
@@ -49,6 +48,14 @@ compileJava.options.encoding = 'UTF-8'
 processResources {
     from(sourceSets.main.resources) {
         expand project.properties
+    }
+}
+
+task copyPluginForTesting(type: Copy, dependsOn: ['shadowJar', 'publishToMavenLocal']) {
+    from shadowJar.outputs.files.singleFile
+    into file("$testServerDir/plugins/")
+    doFirst {
+        System.out.println("Output Directory: " + outputs.files.singleFile)
     }
 }
 

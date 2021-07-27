@@ -12,7 +12,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.comroid.common.Version;
 import org.comroid.common.io.FileHandle;
-import org.comroid.spiroid.annotation.MinecraftPlugin;
 import org.comroid.spiroid.chat.PlayerNotifier;
 import org.comroid.spiroid.command.SpiroidCommand;
 import org.comroid.spiroid.util.BukkitUtil;
@@ -49,7 +48,6 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     public final FileHandle configDir;
     protected final Map<String, Configuration> configs = new ConcurrentHashMap<>();
     protected final Map<String, SpiroidCommand> commands = new ConcurrentHashMap<>();
-    private final MinecraftPlugin annotation;
     private final Set<String> configNames;
     private final Map<UUID, PlayerNotifier> notifiers = new ConcurrentHashMap<>();
     private boolean loaded = false;
@@ -70,9 +68,6 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
 
     protected AbstractPlugin(SpiroidCommand[] baseCommands, String... configNames) {
         instance = this;
-
-        this.annotation = ReflectionHelper.findAnnotation(MinecraftPlugin.class, getClass(), ElementType.TYPE)
-                .orElseThrow(() -> new NoSuchElementException("Plugin class " + getClass().getSimpleName() + " is missing annotation @MinecraftPlugin"));
 
         if (baseCommands.length == 0)
             getLogger().log(Level.WARNING, "No command Handlers are defined");
@@ -179,9 +174,6 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
     @Override
     public final void onLoad() {
         try {
-            for (String dep : annotation.dependencies())
-                if (Bukkit.getPluginManager().getPlugin(dep) == null)
-                    throw new NoSuchElementException("Missing dependency Plugin: " + dep);
             super.onLoad();
             load();
             saveDefaultConfig();

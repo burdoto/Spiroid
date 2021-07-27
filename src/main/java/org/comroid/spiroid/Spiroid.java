@@ -4,13 +4,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.player.PlayerToggleSneakEvent;
-import org.comroid.spiroid.annotation.MinecraftPlugin;
 import org.comroid.spiroid.command.SpiroidCommand;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.logging.Logger;
 
-@MinecraftPlugin
 public final class Spiroid extends AbstractPlugin {
     public static Spiroid INSTANCE;
     public static Logger LOGGER;

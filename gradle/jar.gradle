@@ -1,8 +1,0 @@
-task deleteTestPlugin(type: Delete) {
-    delete "$testServerDir/plugins/${shadowJar.outputs.files.singleFile.getName()}"
-}
-
-task copyPluginForTesting(type: Copy, dependsOn: 'deleteTestPlugin') {
-    from shadowJar.outputs.files.singleFile;
-    into file("$testServerDir/plugins/")
-}

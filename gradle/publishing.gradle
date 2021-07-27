@@ -89,7 +89,7 @@ publishing {
 
     publications {
         mavenJava(MavenPublication) {
-            artifactId = artifactName
+            artifactId = 'spiroid-api'
             from components.java
 
             artifact sourcesJar
@@ -112,7 +112,7 @@ publishing {
                     developer {
                         id = 'kaleidox'
                         name = 'Tobias Burdow'
-                        email = 'contact@comroid.org'
+                        email = 'kaleidox@comroid.org'
                     }
                 }
 
