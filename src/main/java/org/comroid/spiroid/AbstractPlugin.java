@@ -93,7 +93,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
                         return Stream.empty();
                     })
                     .map(String::valueOf)
-                    .peek(alias -> getLogger().log(Level.INFO, "Registering command alias " + alias + " for command " + name))
+                    .peek(alias -> getLogger().log(Level.FINE, "Registering command alias " + alias + " for command " + name))
                     .forEach(alias -> this.commands.put(alias, cmd));
         }
 
