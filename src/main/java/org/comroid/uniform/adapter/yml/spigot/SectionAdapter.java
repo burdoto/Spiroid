@@ -8,6 +8,11 @@ import java.util.*;
 public final class SectionAdapter implements Map<String, Object> {
     private final ConfigurationSection section;
 
+    @Override
+    public boolean isEmpty() {
+        return section.getKeys(false).isEmpty();
+    }
+
     SectionAdapter(ConfigurationSection section) {
         this.section = section;
     }
@@ -15,11 +20,6 @@ public final class SectionAdapter implements Map<String, Object> {
     @Override
     public int size() {
         return section.getKeys(false).size();
-    }
-
-    @Override
-    public boolean isEmpty() {
-        return section.getKeys(false).isEmpty();
     }
 
     @Override
