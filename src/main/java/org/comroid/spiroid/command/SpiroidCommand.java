@@ -59,7 +59,7 @@ public interface SpiroidCommand extends Named {
 
                         return result != null;
                     } catch (Throwable t) {
-                        sender.sendMessage(ChatColor.RED + "An internal " + t.getClass().getSimpleName() + " occurred!");
+                        sender.sendMessage(ChatColor.RED + "An internal " + t.getClass().getSimpleName() + " occurred: " + t.getMessage());
                         return false;
                     }
                 })
