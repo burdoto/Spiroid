@@ -2,6 +2,8 @@ package org.comroid.spiroid.command;
 
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Player;
 import org.comroid.api.Named;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.ApiStatus.NonExtendable;
@@ -47,11 +49,18 @@ public interface SpiroidCommand extends Named {
     @Nullable
     String execute(CommandSender sender, String[] args);
 
+    default boolean allowConsoleExecution() {
+        return true;
+    }
+
     @Internal
     default boolean wrapExecution(CommandSender sender, String[] args, int index) {
         return findSubcommand(args, index)
                 .map(cmd -> {
                     try {
+                        if (sender instanceof ConsoleCommandSender && !cmd.allowConsoleExecution())
+                            throw new UnsupportedOperationException("Cannot execute this command from console");
+
                         final String result = cmd.execute(sender, args);
 
                         if (result != null && !result.isEmpty())
