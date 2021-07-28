@@ -141,3 +141,7 @@ test/**
 !test/plugins/**.jar
 !test/eula.txt
 !test/server.properties
+.classpath
+.project
+*.prefs
+bin/main/plugin.yml
