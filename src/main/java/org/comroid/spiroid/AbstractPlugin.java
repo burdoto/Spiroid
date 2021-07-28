@@ -76,7 +76,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
         final Map<String, Map<String, Object>> commands = this.getDescription().getCommands();
         for (SpiroidCommand cmd : baseCommands) {
             String name = cmd.getName();
-            this.commands.put(name, cmd);
+            this.commands.put(name.toLowerCase(), cmd);
             getLogger().log(Level.FINER, "Registering command aliases for command " + name);
             commands.entrySet().stream()
                     .filter(it -> it.getKey().equalsIgnoreCase(name))
@@ -94,7 +94,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
                     })
                     .map(String::valueOf)
                     .peek(alias -> getLogger().log(Level.FINE, "Registering command alias " + alias + " for command " + name))
-                    .forEach(alias -> this.commands.put(alias, cmd));
+                    .forEach(alias -> this.commands.put(alias.toLowerCase(), cmd));
         }
 
         this.configNames = new HashSet<>(Arrays.asList(configNames));
@@ -243,7 +243,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
             @NotNull String label,
             @NotNull String[] args
     ) {
-        final SpiroidCommand cmd = commands.get(label);
+        final SpiroidCommand cmd = commands.get(label.toLowerCase());
 
         if (cmd == null)
             return false;
@@ -258,7 +258,7 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
             @NotNull String label,
             @NotNull String[] args
     ) {
-        final SpiroidCommand cmd = commands.get(label);
+        final SpiroidCommand cmd = commands.get(label.toLowerCase());
 
         if (cmd == null)
             return null;
