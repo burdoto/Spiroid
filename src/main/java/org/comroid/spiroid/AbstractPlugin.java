@@ -9,27 +9,28 @@ import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.comroid.common.Version;
 import org.comroid.common.io.FileHandle;
 import org.comroid.spiroid.chat.PlayerNotifier;
 import org.comroid.spiroid.command.SpiroidCommand;
 import org.comroid.spiroid.util.BukkitUtil;
-import org.comroid.util.ReflectionHelper;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.annotation.ElementType;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.logging.Level;
+import java.util.stream.Stream;
+
+import static java.util.logging.Level.WARNING;
 
 public abstract class AbstractPlugin extends JavaPlugin implements Version.Container {
     public static final Class<? extends AbstractPlugin> spiroid;
@@ -71,9 +72,30 @@ public abstract class AbstractPlugin extends JavaPlugin implements Version.Conta
         instance = this;
 
         if (baseCommands.length == 0)
-            getLogger().log(Level.WARNING, "No command Handlers are defined");
-        for (SpiroidCommand cmd : baseCommands)
-            commands.put(cmd.getName(), cmd);
+            getLogger().log(WARNING, "No command Handlers are defined");
+        final Map<String, Map<String, Object>> commands = this.getDescription().getCommands();
+        for (SpiroidCommand cmd : baseCommands) {
+            String name = cmd.getName();
+            this.commands.put(name, cmd);
+            getLogger().log(Level.FINER, "Registering command aliases for command " + name);
+            commands.entrySet().stream()
+                    .filter(it -> it.getKey().equalsIgnoreCase(name))
+                    .peek(blob -> getLogger().log(Level.FINER, "Found command blob for name " + name + ": " + blob))
+                    .flatMap(it -> {
+                        Object value = it.getValue().get("aliases");
+                        if (value instanceof Collection) {
+                            return ((Collection<?>) value).stream();
+                        } else if (value instanceof String) {
+                            return Stream.of(String.valueOf(value));
+                        } else if (value != null && value.getClass().isArray()) {
+                            return Stream.of((String[]) value);
+                        }
+                        return Stream.empty();
+                    })
+                    .map(String::valueOf)
+                    .peek(alias -> getLogger().log(Level.INFO, "Registering command alias " + alias + " for command " + name))
+                    .forEach(alias -> this.commands.put(alias, cmd));
+        }
 
         this.configNames = new HashSet<>(Arrays.asList(configNames));
 
