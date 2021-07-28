@@ -8,17 +8,8 @@ apply plugin: 'java-library'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply from: 'gradle/vars.gradle'
 
-ext {
-    buildId = TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis())
-}
-task tcBuildId {
-    doLast {
-        println "##teamcity[buildNumber '$buildId']"
-    }
-}
-tasks.named('jar').configure { dependsOn tcBuildId }
 group 'org.comroid'
-version '0.4.0'
+version '0.4.0-SNAPSHOT'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
