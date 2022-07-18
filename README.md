@@ -1,2 +1,2 @@
 # Spiroid
- Spigot Utilities Plugin + API
+Spiroid was archived in favor of [cmdr-spigot](https://github.com/comroid-git/cmdr)
